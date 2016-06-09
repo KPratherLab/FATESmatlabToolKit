@@ -1,10 +1,10 @@
  % STARTUP starts up Matlab workspace for FATES progam and data processing
 % session. Because it is a script, and because certain variables are
 % defined to be global, it will create the important data structures used
-% throughout YAADA.  
+% throughout FATES.  
 %
 % From a matlab prompt, run as 
-%  >startup_yaada  
+%  >startup_fates  
 %
 % The program will ask the user for certain file path information.
 % 
