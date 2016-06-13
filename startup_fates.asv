@@ -114,20 +114,20 @@ else  %if startup info not exist, need to ask for it
   end;
 
   if isempty(fates_folder)
-%      if (runbatch==0)
-%         fates_folder_entered = input(sprintf('Enter the high level path for fates folders: [%s] ',fates_folder),'s');
-%         fates_folder         = strrep(fates_folder_entered,'\',filesep2use);
-%         %fprintf('You entered fates folder: %s  \n',fates_folder)
-%         if (strfind(fates_folder_entered,'\'))
-%             fprintf(' note that all "\\" will be changed to "/" \n');
-%         end;
-%      end
-%      if isempty(fates_folder)
-%          error('ERROR: The fates folder is empty \n');
-%      end;
-%      if ~exist(fates_folder);
-%           error('ERROR: The fates folder does not exist - exiting \n');
-%      end;
+     if (runbatch==0)
+        fates_folder_entered = input(sprintf('Enter the high level path for fates folders: [%s] ',fates_folder),'s');
+        fates_folder         = strrep(fates_folder_entered,'\',filesep2use);
+        %fprintf('You entered fates folder: %s  \n',fates_folder)
+        if (strfind(fates_folder_entered,'\'))
+            fprintf(' note that all "\\" will be changed to "/" \n');
+        end;
+     end
+     if isempty(fates_folder)
+         error('ERROR: The fates folder is empty \n');
+     end;
+     if ~exist(fates_folder);
+          error('ERROR: The fates folder does not exist - exiting \n');
+     end;
   end
   if isempty(fates_data)
       if (runbatch==0)
@@ -146,11 +146,11 @@ else  %if startup info not exist, need to ask for it
   end
 
   %set up directories
-%   FATES.fates_folder = fates_folder;  
+  FATES.fates_folder = fates_folder;  
   FATES.fates_data = fates_data;  
-%   FATES.MainDir    = fates_folder;
-%   FATES.TempDir    = strcat(fates_folder,filesep2use,'tmp');
-%   FATES.UserDir    = fates_folder;  %your own scripts
+  FATES.MainDir    = fates_folder;
+  FATES.TempDir    = strcat(fates_folder,filesep2use,'tmp');
+  FATES.UserDir    = fates_folder;  %your own scripts
   
   %set up 
   FATES.MaxMZ = 350;
@@ -165,7 +165,7 @@ else  %if startup info not exist, need to ask for it
 if (runbatch==0)
 % 
   % FATES Dir
-  s = strrep(input('Main FATES directory?  ','s'),'\',filesep2use);
+  s = strrep(input(sprintf('Main FATES directory?     [%s] ',FATES.MainDir),'s'),'\',filesep2use);
   if ~isempty(s)
     FATES.MainDir = s;
   end
@@ -176,7 +176,7 @@ if (runbatch==0)
   end
 
   % User Dir
-  s = strrep(input('User program directory?  ','s'),'\',filesep2use);
+  s = strrep(input(sprintf('User program directory?   [%s] ',FATES.UserDir),'s'),'\',filesep2use);
   if ~isempty(s)
     FATES.UserDir = s;
   end
@@ -187,11 +187,11 @@ if (runbatch==0)
   end
 
   % Temp Dir
-%   if ~exist(FATES.TempDir,'dir');
-%     if ~mkdir(FATES.TempDir);
-%       error('Cannot create directory %s',FATES.TempDir);
-%     end
-%   end
+  if ~exist(FATES.TempDir,'dir');
+    if ~mkdir(FATES.TempDir);
+      error('Cannot create directory %s',FATES.TempDir);
+    end
+  end
 
   %PFR, the peak data is 1 big file and is now read in by chunks of rows
   % The more rows are read in at a time the better for performance of

@@ -17,8 +17,8 @@ function make_study
 
 % Recognizes TW04 and call the corresponding digest function
 % Alberto Cazorla 2010-09-17
-% PFR 2015-4-01  streamlined version of YAADA, 
-% CMS 2016 more streamlined version fo YAADA
+% PFR 2015-4-01  streamlined version of FATES, 
+% CMS 2016 more streamlined version fo FATES
 
 global STUDY procDATE INST runbatch nameSET namePKL nameSEM nameINST PARTdataFlds PEAK PEAKFlds PARTidMat PARTidFlds PARTdataMat partdataNAME missedFlds hitFlds missedNAME hitNAME partDataMISSED partDataHIT missedpartColumns hitpartColumns peakFldsNAME spectraNAME spectraColumns spectraFlds peakColumns
 
@@ -27,7 +27,7 @@ if (nargin>0)
     fprintf('NOTE, make study, uses study name given in init_study script\n')
 end;
 
-%PFR for runbatch, 1 is for remaking pk2files (only used if runbatch=1 in startup_yaada)
+%PFR for runbatch, 1 is for remaking pk2files (only used if runbatch=1 in startup_fates)
 makepk2_batchexecvalue=0;  
 
 %PFR  use global study variable
@@ -70,10 +70,7 @@ end; %runbatch ck  PFR
 
 STUDY.LastInstID = 0; %PFR 
  
-%PFR data def is where struct tables were defined first.  In old yaada
-%this was done in init-study when wiping clean the database.
-%But now, make study is only called to overwrite or create the data matrices
-% from scratch, so now it is done here
+%PFR data def is where struct tables were defined first. 
 
 %set up fields in study
 studyFields

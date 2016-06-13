@@ -187,7 +187,10 @@ while EndTest == 0;
     prevWM=WeightMatrix;
     
     %cluster particles
-    for I = 1:NumPID;
+    for I = 1:NumPID 
+        if mod(I,10000) == 0
+            I
+        end
             [ClosestProximity(I), ClosestNeuron(I)] = max(AreaMatrix(:,RandomOrder(I))'*WeightMatrix);
             if ClosestProximity(I) >= VigilanceFactor; %if particle matches a current cluster
                     temp = WeightMatrix(:,ClosestNeuron(I))*adjRate + (AreaMatrix(:,RandomOrder(I)) * LearningRate); %add to cluster and alter WM

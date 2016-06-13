@@ -27,11 +27,11 @@ function init_study(StudyName_Full)
 % Recognizes TW04 again and it is set as default
 % Calls make_ydb to create the data base
 % Alberto Cazorla 2010-09-17
-% PFR 2015-4-01  streamlined version of YAADA, 
-% CMS 2016 more streamlined version of YAADA
+% PFR 2015-4-01  streamlined version of FATES, 
+% CMS 2016 more streamlined version of FATES
 
 
-global YAADA STUDY DATADEF  runbatch
+global FATES STUDY DATADEF  runbatch
 
 if nargin > 1
   error('too many arguments, Call as init_study(StudyName)');
@@ -39,7 +39,7 @@ end
 
 %-------------------------------------------------
 %PFR  for batch exec use a 'runbatch' flag = 1 in startup
-%  see also startup_yaadaa
+%  see also startup_fatesa
 %----------------------------------------------
 filesep2use='/'; 
 if (runbatch==0)
@@ -93,7 +93,7 @@ else  %otherwise prompt user for info
     % set defaults
     if (length(StudyName_Path)>0)
          path2use=StudyName_Path;
-    else path2use=sprintf('%s/data',YAADA.yaada_data);
+    else path2use=sprintf('%s/data',FATES.fates_data);
     end
     STUDY.RawDir  = sprintf('%s/%s/raw',path2use,StudyName);
     STUDY.ProcDir  = sprintf('%s/%s/ydb',path2use,StudyName);
