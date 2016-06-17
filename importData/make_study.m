@@ -120,7 +120,7 @@ for i = 1:length(nameSET)
 end
 
 save(STUDY.DataFile,'INST','PARTidMat','PARTdataMat','PARTidFlds','PARTdataFlds','PEAK','PEAKFlds','-v7.3');
-save(STUDY.Name,'STUDY');
+save(STUDY.NameFull,'STUDY');
 clearvars -global runbatch nameSET namePKL nameSEM nameINST procDATE partdataNAME missedFlds hitFlds missedNAME hitNAME partDataMISSED partDataHIT missedpartColumns hitpartColumns numFldsPARTid numFldsPARTdata3 numFldsPEAKFlds peakColumns spectraColumns spectraFlds
 return
 

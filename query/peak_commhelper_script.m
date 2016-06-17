@@ -119,9 +119,9 @@ if (curr_nr>=STUDY.NumPkRows)
 else
      fprintf('INFO, peak comm helper, will read rows from %i to %i\n',rows_set2read(1),rows_set2read(2));
      %set up loop through 'chunks' of PEAKMat that are in matrix file
-     fid         =fopen(STUDY.PeakMat_filename,'r');
-     numcols     = 9;  %or STUDY.NumPkCols
-     pkloadcnt   =0;
+     fid         = fopen(STUDY.PeakMat_filename,'r');
+     numcols     = STUDY.NumPkCols;  %or STUDY.NumPkCols
+     pkloadcnt   = 0;
      
      %get 1st row to read and byte offset into file
      %NOTE, 4 bytes assumes the peakmat file was written as singles in

@@ -13,7 +13,7 @@ global missedFlds hitFlds
 if ~isempty(MissedPartFile)
     fim = fopen(MissedPartFile);
     if fim ~= -1 %change code from here to else (line 18) statement if using a different file format
-        missedData = textscan(fim, '%*f %*f %f %f %s %f %f %f %f','TreatAsEmpty',{'1.#J'},'Delimiter',','); 
+        missedData = textscan(fim, '%*f %*f %f %f %s %f %f %f %f','TreatAsEmpty',{'1.#J'},'Delimiter',','); %note first two columns are ignored, last seven columns are read in 
         fclose(fim);
         %change string date to num
         missedData{:,missedFlds.TIME} = (datenum(missedData{:,missedFlds.TIME}));
@@ -29,7 +29,7 @@ end
 if ~isempty(HitPartFile)
     fit = fopen(HitPartFile);
     if fit ~= -1 %change code from here to else (line 34) statement if using a different file format
-        hitData = textscan(fit, '%*f %*f %f %f %s %f %f %f %f','TreatAsEmpty',{'1.#J'},'Delimiter',',');
+        hitData = textscan(fit, '%*f %*f %f %f %s %f %f %f %f','TreatAsEmpty',{'1.#J'},'Delimiter',','); %note first two columns are ignored, last seven columns are read in 
         fclose(fit);
         %change date to string
         hitData{:,hitFlds.TIME} = (datenum(hitData{:,hitFlds.TIME}));

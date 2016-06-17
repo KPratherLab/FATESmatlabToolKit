@@ -45,7 +45,7 @@ function parse_part(HitPartFile,MissedPartFile,PeakFile,InstID)
 %           which is written out to a binary file
 
 
-global INST PEAK STUDY PEAKFlds PARTidFlds PARTidMat PARTdataMat PARTdataFlds partdataNAME numFldsPARTid  numFldsPARTdata3 missedFlds hitFlds partDataMISSED partDataHIT missedpartColumns hitpartColumns numFldsPEAKFlds peakColumns spectraColumns spectraFlds PeakFlds
+global INST PEAK STUDY PEAKFlds PARTidFlds PARTidMat PARTdataMat PARTdataFlds partdataNAME numFldsPARTid  numFldsPARTdata missedFlds hitFlds partDataMISSED partDataHIT missedpartColumns hitpartColumns numFldsPEAKFlds peakColumns spectraColumns spectraFlds PeakFlds
 %% get inst info
 %PFR change from InstRow = search(INST.InstID,'==',InstID);
 InstRow = find([INST.InstID]==InstID); %structure search
@@ -59,11 +59,9 @@ sizeHit = size(hitData,1); %get size
 %% combine PART data for hit and missed particles
 numPart = sizeMissed+sizeHit; %total number of particles
 partidTMP = zeros(numPart,numFldsPARTid); %set up temporary partID matrix
-partdataTMP = zeros(numPart,numFldsPARTdata3,'single'); %set up temporary partData matrix
+partdataTMP = zeros(numPart,numFldsPARTdata,'single'); %set up temporary partData matrix
 
-%add data type1 and data type 3 data to PARTdata
-%NOTE- 1:numFldsPARTdata1 refers to PARTdataFlds data type 1 (non gauge board data from particle files)
-%(numFldsPARTdata2+1):numFldsPARTdata3 refers to PARTdataFlds data type 3 (gauge board (pmt sizing) data from particle files)
+%add data type1 to PARTdata
 if ~isempty(missedData) && ~isempty(hitData)
     partidTMP(:,PARTidFlds.TIME) = [missedData(:,missedFlds.TIME); hitData(:,hitFlds.TIME)];
     partdataTMP(1:sizeMissed,partDataMISSED) = single(missedData(:,missedpartColumns)); 
@@ -78,6 +76,7 @@ end
 
 partidTMP(:,PARTidFlds.INSTID) = InstID; %add inst
 
+%%
 %add data type 2 data to PARTdata (calculated or from .pol, not read in from particle files .sem or .set)
 %read in/create polarity hit data
 polfilename = sprintf('%s.pol',HitPartFile(1:end-4));
@@ -126,6 +125,7 @@ if any(strcmpi('DA',partdataNAME))
     else fprintf('WARN, update da, no da calib function to call');
     end;
 end
+%%
 
 %separate into hit and missed matrices
 if any(strcmpi('HIT',partdataNAME))
@@ -217,5 +217,5 @@ if ~isempty(PeakFile)
     
     %PFR set Peak Size info
     STUDY.NumPkRows=STUDY.NumPkRows+size(PeakData,1);
-    STUDY.NumPkCols=length(PEAKFlds);
+%     STUDY.NumPkCols=length(PEAKFlds);
 end

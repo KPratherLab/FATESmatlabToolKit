@@ -18,66 +18,66 @@ DirList = dir(topDir);
 findDir = [DirList.isdir]; 
 DirNames = {DirList(findDir).name};
 DirNames(ismember(DirNames,{'.','..'})) = [];
-findSEM = dir(sprintf('%s%s%s',topDir,'\*',STUDY.missedEXT)); %check for sem (missed data) file, this assumes all data containing folders have a .sem (missed particle) file. Change to appropriate
 %file type if this is not usually the case.
 
-if ~isempty(findSEM)
-    findINST = dir(sprintf('%s%s%s',topDir,'\*',STUDY.instEXT)); %find instrument file
-    if isempty(findINST)
-        error('%s  %s\n', 'No inst file found',topDir); %all folders with data must contain an instrument file
-    elseif length(findINST) > 1
-        error('%s  %s\n', 'Only one inst file allowed per folder', topDir); %only one inst file per folder
-    else %create list of data files in folder
-        nameINSTtmp = {findINST.name};
-        findSET = dir(sprintf('%s%s%s',topDir,'\*',STUDY.hitEXT));
-        findPKL = dir(sprintf('%s%s%s',topDir,'\*',STUDY.spectraEXT'));
-        if isempty(findSET) %no hit particles though missed particles found
-            fprintf('%s  %s\n','Warning no SET file found, data likely missing',topDir); %this can happen if only a few particles in folder
-            nameSEMtmp = {findSEM.name};
+% if ~isempty(findSEM)
+findINST = dir(sprintf('%s%s%s',topDir,'\*',STUDY.instEXT)); %find instrument file
+%     if isempty(findINST)
+%         error('%s  %s\n', 'No inst file found',topDir); %all folders with data must contain an instrument file
+%     else
+if length(findINST) > 1
+    error('%s  %s\n', 'Only one inst file allowed per folder', topDir); %only one inst file per folder
+elseif ~isempty(findINST) %create list of data files in folder %found an inst file
+    findSEM = dir(sprintf('%s%s%s',topDir,'\*',STUDY.missedEXT)); %check for sem (missed data) file
+    nameINSTtmp = {findINST.name};
+    findSET = dir(sprintf('%s%s%s',topDir,'\*',STUDY.hitEXT));
+    findPKL = dir(sprintf('%s%s%s',topDir,'\*',STUDY.spectraEXT'));
+    if isempty(findSET) %no hit particles though missed particles found
+        fprintf('%s  %s\n','Warning no SET file found, data likely missing',topDir); %this can happen if only a few particles in folder
+        nameSEMtmp = {findSEM.name};
+        nameSEMtmp2 = fullfile(topDir,nameSEMtmp);
+        nameSEM = [nameSEM; nameSEMtmp2'];
+        if iscell(nameSEMtmp2)
+            nameSET = [nameSET; cell(length(nameSEMtmp2),1)];
+            namePKL = [namePKL; cell(length(nameSEMtmp2),1)];
+        else
+            nameSET = [nameSET; cell(1,1)];
+            namePKL = [namePKL; cell(1,1)];
+        end
+    else %hit and missed particles found
+        nameSETtmp = {findSET.name}; %get names of files
+        nameSEMtmp = {findSEM.name};
+        namePKLtmp = {findPKL.name};
+        compSET = regexprep(nameSETtmp,STUDY.hitEXT,''); %remove file type to compare
+        compSEM = regexprep(nameSEMtmp,STUDY.missedEXT,'');
+        compPKL = regexprep(namePKLtmp,STUDY.spectraEXT,'');
+        if ~isequal(compSET,compPKL) %names of hit part file and peak files must match
+            error('%s\n%s', 'Number and names of pkl and set files must match ', topDir);
+        elseif ~isequal(compSEM,compSET) %the names of hit and missed particles probably should match. If they don't, files are likely missing or in wrong folder
+            fprintf('%s\n%s','Warning number or names of SEM and SET files do not match. Likely data missing', topDir);
+            %procedure to sort and figure out what sem and set files
+            %match or do not match
+            allname = union(compSEM, compSET);
+            [~,matchSEM] = intersect(allname,compSEM);
+            [~,matchSET] = intersect(allname,compSET);
+            %keep the length of the lists equal only add names where appropiate
+            nameSETtmp2 = cell(length(allname),1);
+            nameSEMtmp2 = cell(length(allname),1);
+            namePKLtmp2 = cell(length(allname),1);
+            nameSETtmp2(matchSET) = fullfile(topDir,nameSETtmp);
+            nameSEMtmp2(matchSEM) = fullfile(topDir,nameSEMtmp);
+            namePKLtmp2(matchSET) = fullfile(topDir,namePKLtmp);
+            %save files names
+            nameSET = [nameSET; nameSETtmp2];
+            nameSEM = [nameSEM; nameSEMtmp2];
+            namePKL = [namePKL; namePKLtmp2];
+        else %all file names match
+            nameSETtmp2 = fullfile(topDir,nameSETtmp); %create full file names
             nameSEMtmp2 = fullfile(topDir,nameSEMtmp);
+            namePKLtmp2 = fullfile(topDir,namePKLtmp);
+            nameSET = [nameSET; nameSETtmp2']; %save files names
             nameSEM = [nameSEM; nameSEMtmp2'];
-            if iscell(nameSEMtmp2)
-                nameSET = [nameSET; cell(length(nameSEMtmp2),1)];
-                namePKL = [namePKL; cell(length(nameSEMtmp2),1)];
-            else
-                nameSET = [nameSET; cell(1,1)];
-                namePKL = [namePKL; cell(1,1)];
-            end
-        else %hit and missed particles found
-            nameSETtmp = {findSET.name}; %get names of files
-            nameSEMtmp = {findSEM.name};
-            namePKLtmp = {findPKL.name};
-            compSET = regexprep(nameSETtmp,STUDY.hitEXT,''); %remove file type to compare
-            compSEM = regexprep(nameSEMtmp,STUDY.missedEXT,'');
-            compPKL = regexprep(namePKLtmp,STUDY.spectraEXT,'');
-            if ~isequal(compSET,compPKL) %names of hit part file and peak files must match
-                error('%s\n%s', 'Number and names of pkl and sem files must match ', topDir);
-            elseif ~isequal(compSEM,compSET) %the names of hit and missed particles probably should match. If they don't, files are likely missing or in wrong folder 
-                fprintf('%s\n%s','Warning number or names of SEM and SET files do not match. Likely data missing', topDir); 
-                %procedure to sort and figure out what sem and set files
-                %match or do not match
-                allname = union(compSEM, compSET); 
-                [~,matchSEM] = intersect(allname,compSEM); 
-                [~,matchSET] = intersect(allname,compSET);
-                %keep the length of the lists equal only add names where appropiate
-                nameSETtmp2 = cell(length(allname),1);
-                nameSEMtmp2 = cell(length(allname),1);
-                namePKLtmp2 = cell(length(allname),1);
-                nameSETtmp2(matchSET) = fullfile(topDir,nameSETtmp);
-                nameSEMtmp2(matchSEM) = fullfile(topDir,nameSEMtmp);
-                namePKLtmp2(matchSET) = fullfile(topDir,namePKLtmp);
-                %save files names
-                nameSET = [nameSET; nameSETtmp2];
-                nameSEM = [nameSEM; nameSEMtmp2];
-                namePKL = [namePKL; namePKLtmp2];
-            else %all file names match
-                nameSETtmp2 = fullfile(topDir,nameSETtmp); %create full file names
-                nameSEMtmp2 = fullfile(topDir,nameSEMtmp);
-                namePKLtmp2 = fullfile(topDir,namePKLtmp);
-                nameSET = [nameSET; nameSETtmp2']; %save files names
-                nameSEM = [nameSEM; nameSEMtmp2'];
-                namePKL = [namePKL; namePKLtmp2'];
-            end
+            namePKL = [namePKL; namePKLtmp2'];
         end
     end
     
@@ -96,6 +96,7 @@ if ~isempty(findSEM)
         procDATE = [procDATE; ProcDatetmp];
     end
 end
+% end
 %     
 %     %save date processed
 %     ProcDATEtmp = now;

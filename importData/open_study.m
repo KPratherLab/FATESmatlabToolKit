@@ -31,7 +31,7 @@ function open_study
 global YAADA STUDY 
 
 %PFR  
-StudyName = STUDY.Name;
+StudyName = STUDY.NameFull;
 
 %PFR added info msg
 fprintf('INFO, open study: about to work on %s: \n ',StudyName)

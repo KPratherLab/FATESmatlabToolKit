@@ -5,7 +5,7 @@ function studyFields
 %to what fields can be altered/removed and what must remain for yaada to
 %continue functioning.
 
-global PEAKFlds PARTidFlds PARTdataFlds PEAK STUDY INST partdataNAME numFldsPARTid numFldsPARTdata1 numFldsPARTdata2 numFldsPARTdata3 peakFldsNAME numFldsPEAKFlds
+global PEAKFlds PARTidFlds PARTdataFlds PEAK STUDY INST partdataNAME numFldsPARTid numFldsPARTdata peakFldsNAME numFldsPEAKFlds
 
 %set up INST flds
 % NOTES ON FLEXIBILITY
@@ -55,6 +55,7 @@ PEAKFlds.HEIGHT = 7; %peak height
 PEAKFlds.BLOWSCALE = 8; %true if peak blows scale
 PEAKFlds.RELAREA = 9; %peak area relative to total area of spectrum
 numFldsPEAKFlds = length(fieldnames(PEAKFlds)); %DON'T DELETE
+STUDY.NumPkCols= numFldsPEAKFlds;
 
 %set up variables to save data definitions file
 peakFldsNAME = fieldnames(PEAKFlds);
@@ -135,7 +136,10 @@ numFldsPARTid = length(partidNAME); %DON'T DELETE
 % rename/change/add/delete at your discretion
 PARTdataFlds.VELOCITY = 1; %velocity of particle 
 PARTdataFlds.LASERPOWER = 2; %laser power of ldi
-numFldsPARTdata1 = length(fieldnames(PARTdataFlds)); %DON'T DELETE
+% PARTdataFlds.SAHEIGHT = 7; %PMTA Height
+% PARTdataFlds.SAAREA = 8; %PMTA Area
+% PARTdataFlds.SBHEIGHT = 9; %PMTB HEIGHT
+% PARTdataFlds.SBAREA = 10; %PMTB AREA
 
 %Data type 2: Data calculated in parse_part, except .RING which is read in
 %from the .pol file if there is one.  HIT is also read in from the .pol
@@ -152,23 +156,10 @@ PARTdataFlds.DA = 3; %vacuum aerodynamic diameter, calculated using provided cal
 PARTdataFlds.HIT = 4; %>0 if hit. 0= not hit, if .pol file exists 1 = both pos and neg spectra generated, 2 = pos spectra only, 3 = neg spectra only. If no pol file 1 = any spectra generated ('hit particle')
 PARTdataFlds.RING = 5; %>0 if ring detected in spectra. This is read in from .pol file if it exists.
 PARTdataFlds.POSIT = 6; %position of particle in folder, taken from file list
-numFldsPARTdata2 = length(fieldnames(PARTdataFlds)); %DON'T DELETE
-
-%Data type 3: Gauge board (sizing PMT) data read in directly from the
-% particle file (.sem or .set).  Currently this consists of SAHEIGHT, SAAREA, SBHEIGHT, SBAREA.
-% This data type NEEDS to remain the third set defined to keep code in
-% parse_part consistent.  However, all PARTdataFlds.DataType3 flds you may 
-% add/delete at your discretion
-if STUDY.Gauge 
-    PARTdataFlds.SAHEIGHT = 7; %PMTA Height
-    PARTdataFlds.SAAREA = 8; %PMTA Area
-    PARTdataFlds.SBHEIGHT = 9; %PMTB HEIGHT
-    PARTdataFlds.SBAREA = 10; %PMTB AREA
-end
-numFldsPARTdata3 = length(fieldnames(PARTdataFlds)); %DON'T DELETE
 
 %set up variables to save data definitions file
 partdataNAME = fieldnames(PARTdataFlds); %DON'T DELETE
+numFldsPARTdata = length(partdataNAME); %DON'T DELETE
 partdataTABLE = cell(length(partdataNAME),1);
 partdataTABLE(1:end) = {'PARTFlds'};
 partdataDESC = cell(length(partdataNAME),1);
@@ -176,7 +167,8 @@ partdataDESC = cell(length(partdataNAME),1);
 %this variable is just a reference for future users so if you don't change
 %it, the study will still load properly but the record of what each field
 %is in DATADEF will not be accureate
-allDESC = {'velocity of particle'; 'laser power of ldi';'%vacuum aerodynamic diameter';'>0 if hit'; '>0 if ring detected in spectra';'%position of particle in folder'; 'PMTA Height'; 'PMTA Area'; 'PMTB HEIGHT'; 'PMTB Area';};
+allDESC = {'velocity of particle'; 'laser power of ldi';'%vacuum aerodynamic diameter';'>0 if hit'; '>0 if ring detected in spectra';'%position of particle in folder'};
+%  'PMTA Height'; 'PMTA Area'; 'PMTB HEIGHT'; 'PMTB Area'
 
 %create datadef variable to hold study definitions for future reference
 DATADEF.table = 1;

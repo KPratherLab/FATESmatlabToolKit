@@ -71,7 +71,7 @@ if (length(StudyName_Ext)>0 && strcmp(upper(StudyName_Ext),'.MAT')~=1)
     fprintf('WARNING, init study, %s extension for study name ignored \n',StudyName_Ext)
 end
 if (length(StudyName_Path)>0 && exist(StudyName_Path))
-   fprintf('INFO, init study will save study info to %s\n',StudyName_Full);
+   fprintf('INFO, init study, will save study info to %s\n',StudyName_Full);
 elseif (length(StudyName_Path)>0 && ~exist(StudyName_Path))
     error('Path for study data not found: %s\n',StudyName_Path);
 %else  studyname path is 0 so it will be ignored
@@ -110,14 +110,8 @@ end
 %-------------------------------------------------
 if (runbatch==0)  %PFR, 0 means get info from user
 
-% RawFormat
-s = strrep(input('Spectra/peak file format? (cmsPKL2016...)  ','s'),'\',filesep2use);
-if ~isempty(s)
-  STUDY.RawFormat = s;
-end
-    
 % RawDir
-s = strrep(input('Raw data directory?  ','s'),'\',filesep2use);
+s = strrep(input(sprintf('Raw data directory? [%s] ',STUDY.RawDir),'s'),'\',filesep2use);
 if ~isempty(s)
   STUDY.RawDir = s;
 end
@@ -128,7 +122,7 @@ if ~exist(STUDY.RawDir,'dir');
 end
 
 % Processed Data Directory
-s = strrep(input('Processed data directory?  ','s'),'\',filesep2use);
+s = strrep(input(sprintf('Processed data directory? [%s] ',STUDY.ProcDir),'s'),'\',filesep2use);
 if ~isempty(s)
   STUDY.ProcDir = s;
 end
@@ -141,7 +135,7 @@ end
 % Ask if want to use gauge board data.  If gauge board data is not
 % necessary/absent, can eliminate these columns in the PARTdataMat and save
 % memory
-% STUDY.Gauge = input('Do you want to use gauge (sizing PMT) board data? 0-no 1-yes  ');
+STUDY.Gauge = input('Do you want to use gauge (sizing PMT) board data? 0-no 1-yes  ');
 
 % get file extensions for data files
 STUDY.missedEXT = input('What is the file extension for the files containing missed particle data? (txt, sem, ...)  ','s');
@@ -157,6 +151,6 @@ end; %if runbatch=1
 % ---------------------
 
 fprintf('INFO, saving study info to %s\n',STUDY.Name);
-save(STUDY.NameFull,'STUDY');
+save(StudyName_Full,'STUDY');
 
 return

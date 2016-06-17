@@ -3,14 +3,12 @@
 %(.set) particle files and the spectra (pkl) files.   Note currently
 %that missedData and hitData have two less columns than the data in .sem
 %and .set files because read_part ignores the first two columns in these
-%files. In this script define the variables held in the columns of the
-%missedData and hitData matrices. For example
-%hitFlds.LASERPOWER =2 %this means the second column of missedData has laser power data for the particle
-% All fieldnames defined here that match a fieldname in the corresponding structure in 
+%files. All fieldnames defined here that match a fieldname in the corresponding structure in 
 %studyFields will be stored in the study variables. All other data will be ignored.
-%The fieldnames for missedFlds and hitFlds should match
-%the fieldnames defined by PARTdataFlds and PARTidFlds.TIME.
-%The fieldnames for spectraFlds should match the fieldnames defined by PEAKFlds.
+%The fieldnames for missedFlds and hitFlds MUST match
+%the fieldnames defined by PARTdataFlds (data type 1 and data type 3) and PARTidFlds.TIME.
+%The fieldnames for spectraFlds MUST match the fieldsnames defined by
+%PEAKFlds.
 
 global missedFlds hitFlds spectraFlds missedNAME hitNAME spectraNAME
 
@@ -18,7 +16,7 @@ global missedFlds hitFlds spectraFlds missedNAME hitNAME spectraNAME
 %identical organization so missedFlds == hitFlds
 %
 missedFlds.TIME = 3; %TIME ALWAYS NEEDS TO BE THE FIRST FIELD DEFINED DO NOT CHANGE 
-missedFlds.VELOCITY = 1; 
+missedFlds.VELOCITY = 1; %
 missedFlds.LASERPOWER = 2;
 missedFlds.SAHEIGHT = 4;
 missedFlds.SAAREA = 5;
