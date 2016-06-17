@@ -31,7 +31,7 @@ function [InstID,NewInst] = parse_inst(InstFile)
 
 % JC 2013 legacy update
 % PFR/CMS 2016 updated for streamlined YAADA
-fakeChange2 = 1;
+
 global STUDY INST
 %PFR
 %fprintf('INFO, parse_inst, starting in parseinst for %s\n',InstFile);
