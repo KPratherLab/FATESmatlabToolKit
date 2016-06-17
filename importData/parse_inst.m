@@ -35,7 +35,6 @@ function [InstID,NewInst] = parse_inst(InstFile)
 global STUDY INST
 %PFR
 %fprintf('INFO, parse_inst, starting in parseinst for %s\n',InstFile);
-firstChange = 1;
 fid = fopen(InstFile{1},'rt');
 
 %add new row to inst
