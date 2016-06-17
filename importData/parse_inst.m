@@ -32,13 +32,13 @@ function [InstID,NewInst] = parse_inst(InstFile)
 % JC 2013 legacy update
 % PFR/CMS 2016 updated for streamlined YAADA
 
-global STUDY INST
+% global STUDY INST
 %PFR
 %fprintf('INFO, parse_inst, starting in parseinst for %s\n',InstFile);
 fid = fopen(InstFile{1},'rt');
-
+laskdfjlksadlkjfd
 %add new row to inst
-if ~isempty(INST(1).InstID)
+% if ~isempty(INST(1).InstID)
     RowIdx = length(INST)+1;  %PFR numrow(INST) + 1;
 else
     RowIdx = 1;
