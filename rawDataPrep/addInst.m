@@ -10,7 +10,7 @@ function addInst(rawDir,InstFile)
 %InstFile = 'C:\Users\atofms\Desktop\SLY_CAICE2014.inst';
 % InstFile = 'E:\portable_tank_data\test_newYaada\testweirdfolders\d\LVN030413.inst';
 % InstFile = 'G:\camilleControlSalt\ELD2015_lp.inst';
-
+secondChange = 2;
 dirData = dir(rawDir);
 dirIndex = [dirData.isdir];
 folderList = {dirData(dirIndex).name}';
