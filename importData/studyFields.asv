@@ -34,7 +34,7 @@ instDESC = cell(length(instFldsNAME),1);
 %this variable is just a reference for future users so if you don't change
 %it, the study will still load properly but the record of what each field
 %is in DATADEF will not be accureate
-instDESC(1:end) = {'inst parameters identifier'; 'instrument code'; 'instrument description'; 'experiment name'; 'experimnet description'; 'calibration function'; 'calibration parameters'; 'number of particles with this instid'; 'last particle id using each DA calibration listed'};
+instDESC(1:end) = {'inst parameters identifier'; 'instrument code'; 'instrument description'; 'experiment name'; 'experimnet description'; 'calibration function'; 'calibration parameters'; 'number of particles with this instid'; 'last particle id using each DA calibration list'};
 
 %set up peak fields
 % NOTES ON FLEXIBILITY
