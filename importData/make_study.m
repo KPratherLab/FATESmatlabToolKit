@@ -46,17 +46,17 @@ load(StudyName);
 %set up data file
 STUDY.DataFile = sprintf('%s/Data_%s.mat',STUDY.ProcDir,STUDY.Name);
 
-%PFR get info check fo rbatch
+%PFR get info check for batch
 if (runbatch==0)  
   if (exist(STUDY.DataFile,'file'))
-      RemDataFile=input(sprintf('WARNING,previous data files,%s, and %s \n,       will be OVERWRITTEN, OK? (y/n) [y]',STUDY.DataFile,STUDY.PeakMat_filename),'s');
+      RemDataFile=input(sprintf('WARNING,previous data files,%s, and %s \n,       will be OVERWRITTEN, OK? (Y=1/N=0) [Y]',STUDY.DataFile,STUDY.PeakMat_filename),'s');
       if isempty(RemDataFile) 
           RemDataFile=1;
       end;
-      if bool2num(RemDataFile) == 1
+      if RemDataFile == 1
           fclose('all');
           delete(STUDY.DataFile, STUDY.PARTidMissed_filename, STUDY.PARTdataMissed_filename, STUDY.PeakMat_filename);
-      else bool2num(RemDataFile)==0
+      else RemDataFile == 0
           fprintf('INFO, make_study, user selected to not overwrite existing data files\n');
           fprintf('INFO, make_study, user could choose new study or archive existing data files \n');
           error('Execution stopped, make_study, user selected to stop');
