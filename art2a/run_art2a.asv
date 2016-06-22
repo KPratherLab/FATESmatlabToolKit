@@ -13,7 +13,7 @@ function [outPartID, outWeightMatrix, partIDCount, trackNeuron, avgPROXALL, PDis
 %   MaxMass (optional) is the maximum mass to charge ratio that will be used
 %               when retrieving the particle spectra utilizing get_int_spectrum_SUM 
 %               (default is the FATES.MaxMZ).  If particle spectra are
-%               provided (NegArea, PosArea) MaxMass is NOT utilized.
+%               provided (NegArea, PosArea) 
 %   LearningRate (optional) is the learning rate (default is 0.05),
 %   VigilanceFactor (optional)is the vigilance factor (default is 0.8),
 %   MaxIteration (optional) is the maximum number of iterations (default is 20)
@@ -61,7 +61,6 @@ function [outPartID, outWeightMatrix, partIDCount, trackNeuron, avgPROXALL, PDis
 % Camille Sultana May 2014
 % 
 % Further refinements to be compatible with new FATES toolkit
-% Camille Sultana 2016
 
 fprintf('INFO, run_art2a_CS, starting\n');
 
@@ -193,6 +192,9 @@ while EndTest == 0;
     
     %cluster particles
     for I = 1:NumPID 
+        if mod(I,10000) == 0
+            I
+        end
             [ClosestProximity(I), ClosestNeuron(I)] = max(AreaMatrix(:,RandomOrder(I))'*WeightMatrix);
             if ClosestProximity(I) >= VigilanceFactor; %if particle matches a current cluster
                     temp = WeightMatrix(:,ClosestNeuron(I))*adjRate + (AreaMatrix(:,RandomOrder(I)) * LearningRate); %add to cluster and alter WM
