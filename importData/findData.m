@@ -1,5 +1,5 @@
 function findData(topDir)
-% finds all atofms data files to load into YAADA study/structures/datafiles.
+% finds all atofms data files to load into FATES study/structures/datafiles.
 % This includes SET, SEM, PKL,and INST files and POL files if available.
 % Filenames are added to the global lists nameSET, nameSEM, namePKL, nameINST .
 % All folders and subfolders within topDir are searched.
@@ -18,16 +18,12 @@ DirList = dir(topDir);
 findDir = [DirList.isdir]; 
 DirNames = {DirList(findDir).name};
 DirNames(ismember(DirNames,{'.','..'})) = [];
-%file type if this is not usually the case.
 
-% if ~isempty(findSEM)
+%look for data
 findINST = dir(sprintf('%s%s%s',topDir,'\*',STUDY.instEXT)); %find instrument file
-%     if isempty(findINST)
-%         error('%s  %s\n', 'No inst file found',topDir); %all folders with data must contain an instrument file
-%     else
 if length(findINST) > 1
     error('%s  %s\n', 'Only one inst file allowed per folder', topDir); %only one inst file per folder
-elseif ~isempty(findINST) %create list of data files in folder %found an inst file
+elseif ~isempty(findINST) %create list of data files in folder if inst file found
     findSEM = dir(sprintf('%s%s%s',topDir,'\*',STUDY.missedEXT)); %check for sem (missed data) file
     nameINSTtmp = {findINST.name};
     findSET = dir(sprintf('%s%s%s',topDir,'\*',STUDY.hitEXT));
@@ -96,15 +92,6 @@ elseif ~isempty(findINST) %create list of data files in folder %found an inst fi
         procDATE = [procDATE; ProcDatetmp];
     end
 end
-% end
-%     
-%     %save date processed
-%     ProcDATEtmp = now;
-%     if iscell(nameSEM
-%         ProcDatetmp2 = zeros(length(nameSEMtmp2),1);
-%         ProcDatetmp2(1:end,1) = ProcDATEtmp;
-%         procDATE = [procDATE; ProcDatetmp2];
-%     end
 
 %iterate into subfolders
 if ~isempty(DirNames)

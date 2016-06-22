@@ -1,46 +1,40 @@
 function init_study(StudyName_Full)
-% INIT_YDB interactively initializes YAADA dataset 
+% INIT_STUDY interactively initializes FATES dataset 
 % Call as init_study(StudyName) or init_study
 %   Note that init study only sets up STUDY information and does NOT
-%   actually open or make a yaada data set (see open_ydb or make_ydb)
+%   actually open or make a fates data set (see open_study or make_study)
 %   Also slashes are set to forward so that this can run
 %   better on unix systems aswell as Windows
 % INIT_STUDY interactively updates the global STUDY variable with the fields:
 %   STUDY.Name
 %   STUDY.RawDir
 %   STUDY.ProcDir
-%   STUDY.RawFormat  Raw data format, e.g. cmsPKL2016
-%   STUDY.Gauge
-%   STUDY.LastInstID
-%
-% STUDY is saved in [STUDY.Name].mat
+%   STUDY.RawFormat  Raw spectra data format, e.g. cmsPKL2016
+%   STUDY.NumPkRows
+%   STUDY.missedEXT 
+%   STUDY.hitEXT 
+%   STUDY.spectraEXT 
+%   STUDY.instEXT
+%   %
+% STUDY is saved in [STUDY.NameFull].mat
 
-% YAADA - Software Toolkit to Analyze Single-Particle Mass Spectral Data
-%
-% Copyright (C) 1999-2000 California Institute of Technology
-% Copyright (C) 2001-2008 Arizona State University
-% Copyright (C) 2008 Jonathan O. Allen
-
-% Jonathan O. Allen  2008-02-05
-
-% Recognizes mac, unix and pc
-% Recognizes TW04 again and it is set as default
-% Calls make_ydb to create the data base
-% Alberto Cazorla 2010-09-17
+% FATES - Software Toolkit to Analyze Single-Particle Mass Spectral Data
 % PFR 2015-4-01  streamlined version of FATES, 
-% CMS 2016 more streamlined version of FATES
+% Camille M Sultana 2016 more streamlined version of FATES
 
 
-global FATES STUDY DATADEF  runbatch
+global FATES STUDY runbatch
 
 if nargin > 1
   error('too many arguments, Call as init_study(StudyName)');
 end
 
 %-------------------------------------------------
-%PFR  for batch exec use a 'runbatch' flag = 1 in startup
-%  see also startup_fatesa
+%for batch exec use a 'runbatch' flag = 1 in startup
+%  see also startup_fates
+runbatch = 0;
 %----------------------------------------------
+
 filesep2use='/'; 
 if (runbatch==0)
   if nargin == 0
@@ -63,6 +57,8 @@ else
      [StudyName_Path StudyName StudyName_Ext]=fileparts(StudyName_Full);     
   end  
 end
+
+
 % now do some edit check on study name
 if (length(StudyName)==0)
      error('study name empty, Call as init_study(StudyName)');
@@ -70,14 +66,12 @@ end
 if (length(StudyName_Ext)>0 && strcmp(upper(StudyName_Ext),'.MAT')~=1)
     fprintf('WARNING, init study, %s extension for study name ignored \n',StudyName_Ext)
 end
-if (length(StudyName_Path)>0 && exist(StudyName_Path))
-   fprintf('INFO, init study will save study info to %s\n',StudyName_Full);
-elseif (length(StudyName_Path)>0 && ~exist(StudyName_Path))
+if (length(StudyName_Path)>0 && ~exist(StudyName_Path))
     error('Path for study data not found: %s\n',StudyName_Path);
 %else  studyname path is 0 so it will be ignored
 end
-
-k = strfind(StudyName,' '); %check to make sure no spaces in study name
+%check to make sure no spaces in study name
+k = strfind(StudyName,' ');
 if ~isempty(k)
   error('Expecting word for StudyName (ie no spaces)');
 end
@@ -97,62 +91,53 @@ else  %otherwise prompt user for info
     end
     STUDY.RawDir  = sprintf('%s/%s/raw',path2use,StudyName);
     STUDY.ProcDir  = sprintf('%s/%s/proc',path2use,StudyName);
-%     STUDY.PlotDir = sprintf('%s/%s/plot',path2use,StudyName);
-
     STUDY.RawFormat ='cmsPKL2016';
-    STUDY.LastInstID = 0;  %PFR double(instid);
     STUDY.NumPkRows = 0;
-    STUDY.Gauge = 1;
 end
 
 %-------------------------------------------------
 %PFR for batch execution:
 %-------------------------------------------------
 if (runbatch==0)  %PFR, 0 means get info from user
-
-% RawFormat
-s = strrep(input('Spectra/peak file format? (cmsPKL2016...)  ','s'),'\',filesep2use);
-if ~isempty(s)
-  STUDY.RawFormat = s;
-end
     
-% RawDir
-s = strrep(input('Raw data directory?  ','s'),'\',filesep2use);
-if ~isempty(s)
-  STUDY.RawDir = s;
-end
-if ~exist(STUDY.RawDir,'dir');
-  if ~mkdir(STUDY.RawDir);
-    error('Cannot create directory %s',STUDY.RawDir);
-  end
-end
-
-% Processed Data Directory
-s = strrep(input('Processed data directory?  ','s'),'\',filesep2use);
-if ~isempty(s)
-  STUDY.ProcDir = s;
-end
-if ~exist(STUDY.ProcDir,'dir');
-  if ~mkdir(STUDY.ProcDir);
-    error('Cannot create directory %s',STUDY.ProcDir);
-  end
-end
-
-% Ask if want to use gauge board data.  If gauge board data is not
-% necessary/absent, can eliminate these columns in the PARTdataMat and save
-% memory
-% STUDY.Gauge = input('Do you want to use gauge (sizing PMT) board data? 0-no 1-yes  ');
-
-% get file extensions for data files
-STUDY.missedEXT = input('What is the file extension for the files containing missed particle data? (txt, sem, ...)  ','s');
-STUDY.hitEXT = input('What is the file extension for the files containing particle data? (txt, set, ...)  ','s');
-STUDY.spectraEXT = input('What is the file extension for the files containing spectra data? (txt, pkl, ...)  ','s');
-STUDY.instEXT = input('What is the file extension for the files containing instrument/experiment data? (txt, inst, ...)  ','s');
-STUDY.missedEXT = sprintf('%s%s','.',STUDY.missedEXT);
-STUDY.hitEXT = sprintf('%s%s','.',STUDY.hitEXT);
-STUDY.spectraEXT = sprintf('%s%s','.',STUDY.spectraEXT);
-STUDY.instEXT = sprintf('%s%s','.',STUDY.instEXT);
-
+    % RawFormat
+    s = strrep(input('Spectra/peak file format? (cmsPKL2016...)  ','s'),'\',filesep2use);
+    if ~isempty(s)
+        STUDY.RawFormat = s;
+    end
+    
+    % RawDir
+    s = strrep(input('Raw data directory?  ','s'),'\',filesep2use);
+    if ~isempty(s)
+        STUDY.RawDir = s;
+    end
+    if ~exist(STUDY.RawDir,'dir');
+        if ~mkdir(STUDY.RawDir);
+            error('Cannot create directory %s',STUDY.RawDir);
+        end
+    end
+    
+    % Processed Data Directory
+    s = strrep(input('Processed data directory?  ','s'),'\',filesep2use);
+    if ~isempty(s)
+        STUDY.ProcDir = s;
+    end
+    if ~exist(STUDY.ProcDir,'dir');
+        if ~mkdir(STUDY.ProcDir);
+            error('Cannot create directory %s',STUDY.ProcDir);
+        end
+    end
+    
+    % get file extensions for data files
+    STUDY.missedEXT = input('What is the file extension for the files containing missed particle data? (txt, sem, ...)  ','s');
+    STUDY.hitEXT = input('What is the file extension for the files containing particle data? (txt, set, ...)  ','s');
+    STUDY.spectraEXT = input('What is the file extension for the files containing spectra data? (txt, pkl, ...)  ','s');
+    STUDY.instEXT = input('What is the file extension for the files containing instrument/experiment data? (txt, inst, ...)  ','s');
+    STUDY.missedEXT = sprintf('%s%s','.',STUDY.missedEXT);
+    STUDY.hitEXT = sprintf('%s%s','.',STUDY.hitEXT);
+    STUDY.spectraEXT = sprintf('%s%s','.',STUDY.spectraEXT);
+    STUDY.instEXT = sprintf('%s%s','.',STUDY.instEXT);
+    
 end; %if runbatch=1
 % ---------------------
 

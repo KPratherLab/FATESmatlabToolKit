@@ -1,16 +1,17 @@
-%define in what column the data is stored in in the missedData and hitData
-%matrices created by read_part function reading in the and missed (.sem) and hit
-%(.set) particle files and the spectra (pkl) files.   Note currently
-%that missedData and hitData have two less columns than the data in .sem
-%and .set files because read_part ignores the first two columns in these
-%files. In this script define the variables held in the columns of the
-%missedData and hitData matrices. For example
-%hitFlds.LASERPOWER =2 %this means the second column of missedData has laser power data for the particle
+function dataFileFields
+% define in what column the data is stored in in the missedData and hitData
+% matrices created by read_part function reading in the and missed (.sem) and hit
+%(.set) particle files.  also define in what column data is stored in 
+% the and PeakDataTMP matrix created by read_peak reading in the spectra (pkl) files.   
+% Note currently that missedData and hitData have two less columns than the data in .sem
+% and .set files because read_part ignores the first two columns in these files. 
+% For example
+% hitFlds.LASERPOWER =2 %this means the second column of missedData has laser power data for the particle
 % All fieldnames defined here that match a fieldname in the corresponding structure in 
-%studyFields will be stored in the study variables. All other data will be ignored.
-%The fieldnames for missedFlds and hitFlds should match
-%the fieldnames defined by PARTdataFlds and PARTidFlds.TIME.
-%The fieldnames for spectraFlds should match the fieldnames defined by PEAKFlds.
+% studyFields will be stored in the database. All other data will be ignored.
+% The fieldnames for missedFlds and hitFlds should match
+% the fieldnames defined by PARTdataFlds and PARTidFlds.TIME.
+% The fieldnames for spectraFlds should match the fieldnames defined by PEAKFlds.
 
 global missedFlds hitFlds spectraFlds missedNAME hitNAME spectraNAME
 

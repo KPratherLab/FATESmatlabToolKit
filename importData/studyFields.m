@@ -1,8 +1,8 @@
 function studyFields
-%this sets up all the structures that yaada will rely upon for the study.
+%this sets up all the structures that fates will rely upon for the study.
 %Users can alter this file depending upon the data types/variables in their
 %own data sets.  However for each structure (INST, PEAK, etc) read the comments carefully as
-%to what fields can be altered/removed and what must remain for yaada to
+%to what fields can be altered/removed and what must remain for fates to
 %continue functioning.
 
 global PEAKFlds PARTidFlds PARTdataFlds PEAK STUDY INST partdataNAME numFldsPARTid numFldsPARTdata peakFldsNAME numFldsPEAKFlds
@@ -10,7 +10,7 @@ global PEAKFlds PARTidFlds PARTdataFlds PEAK STUDY INST partdataNAME numFldsPART
 %set up INST flds
 % NOTES ON FLEXIBILITY
 %The INST flds to be used are flexible EXCEPT do not remove InstID,
-%InstCODE, ExpNAME, DAcalibFUNCTION, or DAcalibPARAM, or LastPartID.  Other scripts/yaada
+%InstCODE, ExpNAME, DAcalibFUNCTION, or DAcalibPARAM, or LastPartID.  Other scripts/fates
 %depend upon these existing.  You may rename/change/add/delete all other
 %INST flds at your discretion
 %Note a unique InstID within the study for every inst file that has a unique
@@ -39,7 +39,7 @@ instDESC(1:end) = {'inst parameters identifier'; 'instrument code'; 'instrument 
 %set up peak fields
 % NOTES ON FLEXIBILITY
 %The PEAKFlds flds to be used are flexible EXCEPT do not remove or InstID,
-%PARTID and do not remove MZ.  Other scripts/yaada
+%PARTID and do not remove MZ.  Other scripts/fates
 %depend upon these existing. In addition if you remove SPECID (identifies polarity of spectra)
 %you will have to alter get_spectrum, get_int_spectrum_SUM, and
 %get_NONint_spectrum_SUM, to remove references to SPECID, but this should
@@ -71,10 +71,12 @@ peakFDESC(1:end) = {'inst parameters identifier'; 'particle identifier'; 'spectr
 
 %set up PEAK
 % NOTES ON FLEXIBILITY
-%The PEAKFlds flds to be used are flexible EXCEPT do not change/remove rowcnt,
-%PARTID, INSTID.  Other scripts/yaada
-%depend upon these existing.  You may rename/change/add/delete all other
-%PEAKFlds flds at your discretion
+% PEAK is utilized by FATES to be able to index quickly into the external
+% binary peak file.  It is not likely to be used directly by the user.
+% Therefore changes to this structure are strongly discouraged.
+% However, the flds to be used are flexible EXCEPT do not change/remove rowcnt,
+% PARTID, INSTID.  Other scripts/fates depend upon these existing.  
+% You may rename/change/add/delete all other PEAK flds at your discretion
 PEAK.rowcnt = []; %DO NOT CHANGE/DELETE %nth peak in whole study
 PEAK.INSTID = []; %DO NOT CHANGE/DELETE %instrument identifier
 PEAK.PARTID = []; %DO NOT CHANGE/DELETE %particle identifier for hit particle
@@ -91,9 +93,9 @@ peakDESC = cell(length(peakNAME),1);
 peakDESC(1:end) = {'nth peak in whole study'; 'instrument identifier'; 'particle identifier'};
 
 %set up partID fields
-% NOTES ON FLEXIBILITY
+%NOTES ON FLEXIBILITY
 %The PARTidFlds flds to be used are flexible EXCEPT do not change TIME,
-%PARTID, INSTID.  Other scripts/yaada
+%PARTID, INSTID.  Other scripts/fates
 %depend upon these existing.  You may rename/change/add/delete all other
 %PARTidFlds flds at your discretion
 %NOTE PARTICLE DATA has been split between PARTid (double precision) and
@@ -126,14 +128,13 @@ numFldsPARTid = length(partidNAME); %DON'T DELETE
 %EXACTLY) in mind.  The function parse_part is what reads in particle data
 %and populates the PART matrices.  Make sure changes to the PART flds are
 %compatible with parse_part.
-% Data has been organized into 3 types in the PARTdata matrix, to simplify
+% Data has been organized into 2 types in the PARTdata matrix, to simplify
 % and make flexible the code.  Pay close attention to the comments if you
 % plan on changing any of this.  
 
-% Data type 1: Non-gauge board (sizing PMT) data read in directly from the
+% Data type 1:data read in directly from the
 % particle file (.sem or .set).  Currently this only consists of Velocity and LaserPower.
-% This data type NEEDS to remain the first set defined to keep code in
-% parse_part consistent.  However, all PARTdataFlds.DataType1 flds you may 
+% All PARTdataFlds.DataType1 flds you may 
 % rename/change/add/delete at your discretion
 PARTdataFlds.VELOCITY = 1; %velocity of particle 
 PARTdataFlds.LASERPOWER = 2; %laser power of ldi
@@ -144,19 +145,18 @@ PARTdataFlds.LASERPOWER = 2; %laser power of ldi
 
 %Data type 2: Data calculated in parse_part, except .RING which is read in
 %from the .pol file if there is one.  HIT is also read in from the .pol
-%file for the hit particles if it exists, other is given a value of 1.
-%This data type NEEDS to remain the second set defined to keep code in
-%parse_part consistent. You may add/delete these flds, but to add
-%flds you will manually have to add in the relevant code (parse_part lines 80-127), as this is data
-%assumed not to be simply read in from the particle file.
-%Note if you remove the HIT fld all data (for hit and missed data)
+%file for the hit particles if it exists, other is given a value of 1 for hit particles and 0 for missed.
+% You may add/delete these flds, but to add
+%flds you will manually have to add in the relevant code (parse_part lines 80-127), as this data
+%assumed not to be simply read in from the particle file but calculated somehow.
+%Note if you remove the HIT fld, all data (for hit and missed data)
 %will be stored in the PART tables held in memory by MATLAB, significantly 
 %increasing memory demands.  In addition there will not be a marker for 
 %hit and missed particles.  So it is not advised to remove the HIT field.
 PARTdataFlds.DA = 3; %vacuum aerodynamic diameter, calculated using provided calibration function and parameters and particle velocity
-PARTdataFlds.HIT = 4; %>0 if hit. 0= not hit, if .pol file exists 1 = both pos and neg spectra generated, 2 = pos spectra only, 3 = neg spectra only. If no pol file 1 = any spectra generated ('hit particle')
+PARTdataFlds.HIT = 4; %suggest do not remove, >0 if hit. 0= not hit, if .pol file exists 1 = both pos and neg spectra generated, 2 = pos spectra only, 3 = neg spectra only. If no pol file 1 = any spectra generated ('hit particle')
 PARTdataFlds.RING = 5; %>0 if ring detected in spectra. This is read in from .pol file if it exists.
-PARTdataFlds.POSIT = 6; %position of particle in folder, taken from file list
+PARTdataFlds.POSIT = 6; %position of particle in folder, taken from number of particles in .set and .sem files
 
 %set up variables to save data definitions file
 partdataNAME = fieldnames(PARTdataFlds); %DON'T DELETE

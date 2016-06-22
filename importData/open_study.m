@@ -1,46 +1,21 @@
 function open_study
-% OPEN_STUDY opens a YAADA dataset
+% OPEN_STUDY opens a FATES dataset
 % Call as OPEN_STUDY,  
 % Prequisit, call init_study and make_study to create the 'STUDY' data structure with needed
 %   file information
+% Open_study opens the study stored in STUDY.DataFile
 
-% YAADA - Software Toolkit to Analyze Single-Particle Mass Spectral Data
-%
-% Copyright (C) 1999-2002 California Institute of Technology
-% Copyright (C) 2001-2008 Arizona State University
-% Copyright (C) 2008 Jonathan O. Allen
+global STUDY 
 
-%PFR  2014, all previous versions are not relevant as now all the data 
-%  and information are stored in matlab structures and need to just be
-%  loaded (without chunks)
-
-% Fizzah Bajwa, Jonathan O. Allen  2002-06-07
-
-% Adapted from Prakash V. Bahave's STARTUP2
-
-% Added warning if user attempts to open YAADA v1 database
-% JOA  2005-10-06
-
-% Moved path initialization to startup.m
-% JOA  2008-02-05
-
-% Commented lines where global variables are cleared
-% Alberto Cazorla  2010-09-17
-% PFR 2015-4-01  streamlined version of YAADA, 
-
-global YAADA STUDY 
-
-%PFR  
-StudyName = STUDY.NameFull;
 
 %PFR added info msg
-fprintf('INFO, open study: about to work on %s: \n ',StudyName)
+fprintf('INFO, open study: about to work on %s: \n ',STUDY.Name)
 
-if ~ischar(StudyName) || isempty(StudyName)
-  error('Expecting string for StudyName');
+if ~ischar(STUDY.NameFull) || isempty(STUDY.NameFull)
+  error('Expecting string for path to Study file');
 end
 
-load(StudyName);
+load(STUDY.NameFull);
 
 if (isfield(STUDY,'DataFile'))
   fprintf('INFO, open study, about to load %s: \n ',STUDY.DataFile)

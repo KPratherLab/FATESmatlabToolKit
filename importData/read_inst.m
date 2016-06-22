@@ -1,10 +1,14 @@
 function instText = read_inst(InstFile)
 % read_inst reads the file containing instrument/experiemental conditions into the variable instText
-% read_inst is called by parse_inst which uses instText to fill data into
-% the FATES structure INST. 
+% read_inst is called by parse_inst which uses instText to fill data into the FATES structure INST. 
 % Call as instText = read_inst(InstFile)
 % The input InstFile is a cell containing the full path to the .inst file
-% Currently read_inst is written to digest a text file. 
+% Currently read_inst is written to digest a text file with the following
+% format
+% Each line of InstFile contains one row of instrument data.  It has 2 types of lines 
+% 1. comments that start in '%'
+% 2. data lines with the form 'Field = Value'
+%
 % The output instText should be a Nx2 cell array.  The first column contains
 % the fieldname (variable name) that will be saved to the INST structure
 % and the second column contains the matching variable data.  instText must maintain

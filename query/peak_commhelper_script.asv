@@ -110,7 +110,7 @@ else
      
      %set up loop through 'chunks' of PEAKMat that are in matrix file
      fid         = fopen(STUDY.PeakMat_filename,'r');
-     numcols     = STUDY.NumPkCols; 
+     numcols     = STUDY.NumPkCols;  %or STUDY.NumPkCols
      pkloadcnt   = 0;
      
      %get 1st row to read and byte offset into file
@@ -120,10 +120,8 @@ else
      last_rowread     = rows_set2read(1)-1;  %keep track of last matrix file row read in
      fseek(fid,offset_2start,-1);    %subtract 1 from beg of file, goto offset byte
      
-     %start looping
      while (~feof(fid) && last_rowread < rows_set2read(2))  
-          %total elements to read in is partsize*numcols
-          %read in binary file
+          %%total elements to read in is partsize*numcols
           peakmatraw   = fread(fid,numcols*partsize,'single');  
           pkloadcnt    = pkloadcnt+1;
           numpkrows    =size(peakmatraw,1)/numcols;  %calculate numrows read in
@@ -135,7 +133,7 @@ else
           % (note also that reshape works by filling in first column
           %   of the LHS matrix result, 
           %   so the reshape has to first use numcols as the 1st index)
-          PEAKMat    =reshape(peakmatraw,numcols,numpkrows); %reshape
+          PEAKMat    =reshape(peakmatraw,numcols,numpkrows);
           %get memory usage
           if ispc
           mem_stats  = memory;

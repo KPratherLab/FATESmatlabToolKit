@@ -34,10 +34,10 @@ function [Spectrum] = get_spectrum(PID,Polarity,ColList)
 global PEAKFlds FATES PEAKMat STUDY
 
 %verify inputs
-if nargin < 2 || nargin > 3
-  error('Call as [Spectrum] = get_spectrum(PID,Polarity,ColList)');
+if nargin < 2 || nargin > 4
+  error('Call as [Spectrum] = get_spectrum(PID,Polarity,ColList,Verbose)');
 end
-if (~(size(PID,2)==2))  %PID is a Nx2 matrix of instid, partids
+if (~(size(PID,2)==2))  %PID is now Nx2 matrix of instid, partids
   error('Invalid PID');
 end
 if ~isnumeric(Polarity) || length(Polarity) > 1
@@ -47,7 +47,7 @@ if Polarity < 0 || Polarity > 2
   error('Expecting 0 (negative), 1 (positive), or 2 (both) for Polarity');
 end
 if ~exist('ColList','var')
-  ColList = {'AREA','RELAREA','HEIGHT'};
+  ColList = {'AREA','RELAREA','HEIGHT','BLOWSCALE'};
 else
   if ischar(ColList)
     ColList = {ColList};
@@ -70,9 +70,17 @@ for k = 1:NumCol
   end
 end
 
-%sort PIDs
+%sort and find unique PIDs
 [PID,PartIdx]     = sortrows(PID); 
-[~,PartIdxIdx]    = sort(PartIdx); 
+[~,PartIdxIdx] = sort(PartIdx); 
+uPID              = unique(PID,'rows'); %,'legacy'); %find unique PIDs in list
+
+%check for duplicates in PID list
+if length(uPID) < length(PID)
+  Duplicates = 1;
+else
+  Duplicates = 0;
+end  
 
 %set up commmand and run it with helper script
 curr_nr =size(PEAKMat,1);
@@ -84,6 +92,17 @@ if (curr_nr<STUDY.NumPkRows)
     peak_commhelper_script;  %exec the command 2do over PeakMat matrix file parts
 else
     get_spectrum_peak_script;
+end
+                 
+% copy data for duplicate PIDs
+% this will be slow, so only run as needed
+if Duplicates
+  % data is in first occurance in sorted list  
+  FirstPID =  find([1; any(diff(PID),2)]); %find location of 1st unique PID
+  LastPID = [FirstKID(2:end)-1; length(PID)]; %find location of last PID in set of unique PIDs
+  for i = 1:length(FirstPID) 
+      Spectrum(FirstPID(i):LastPID(i),:) = Spectrum(FirstPID,:);
+  end
 end
 
 % reorder spectral data to match original PID

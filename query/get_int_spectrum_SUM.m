@@ -4,7 +4,7 @@ function [NegResponse,PosResponse] = get_int_spectrum_SUM(PID,MaxMZ,ResponseType
 % Where PID is set of paritcle identifiers stored as a nx2 matrix
 %   PID(:,1) = InstID
 %   PID(:,2) = PartID
-% MaxMZ is the upper limit of m/z range; The default MaxMZ is YAADA.MaxMZ.
+% MaxMZ is the upper limit of m/z range; The default MaxMZ is FATES.MaxMZ.
 % The ResponseType can be any column in PEAK. 'Area' is the default ResponseType.
 % Polarity specifies the spectrum polarity as
 %   Polarity = 0 - negative spectra
@@ -15,15 +15,8 @@ function [NegResponse,PosResponse] = get_int_spectrum_SUM(PID,MaxMZ,ResponseType
 % and rows represent integral MZ.  PosResponse(23,1) is the sum of areas of peaks with MZ =
 % 22.5-23.5 for the first hit particle.
 % The PosResponse columns span m/z = 1 to MaxMZ, the NegResponse columns span m/z = -1 to -MaxMZ. 
-%
-% See also GET_COLUMN, GET_SPECTRUM.
-% YAADA - Software Toolkit to Analyze Single-Particle Mass Spectral Data
-%
-% Copyright (C) 1999-2000 California Institute of Technology
-% Copyright (C) 2001-2008 Arizona State University
-% Copyright (C) 2008 Jonathan O. Allen
 
-global YAADA
+global FATES
 
 %check setup
 if nargin < 1 || nargin > 4
@@ -41,7 +34,7 @@ if exist('MaxMZ','var')
     error('Expecting scalar for MaxMZ');
   end
 else
-  MaxMZ = YAADA.MaxMZ;
+  MaxMZ = FATES.MaxMZ;
 end
 
 %check ResponseType
@@ -116,8 +109,7 @@ if nargout == 1
     % return only requested polarity
     if Polarity == 1
         NegResponse = PosResponse;
-    end
-    
+    end   
 end
 
 return

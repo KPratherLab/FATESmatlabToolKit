@@ -13,7 +13,7 @@ function addInst(rawDir,InstFile)
 dirData = dir(rawDir);
 dirIndex = [dirData.isdir];
 folderList = {dirData(dirIndex).name}';
-folderList(ismember(folderList,{'.','..'})) = [];
+folderList(ismember(folderList,{'.','..'})) = []; 
 
 if ~isempty(folderList) %identify if folder contains subfolders
     for i = 1:length(folderList) 

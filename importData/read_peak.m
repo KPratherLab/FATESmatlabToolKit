@@ -5,8 +5,12 @@ function PeakDataTMP = read_peak(PeakFile)
 % accomodate other file formats (other than .pkl).  Efforts should
 % be made when altering the code to use the fastest data import MATLAB
 % function appropiate, as this step of study creation can often be a
-% bottleneck. 
+% bottleneck.  PEAKFile is the full path to the spectra file.  PEAKDataTMP is a
+% matrix where each row contains data for a single peak.  Each column
+% contains a single data type (m/z, area, etc).  PEAKDataTMP must be output
+% in this format to be compatible with parse_part.
 
-fid = fopen(PeakFile);
-PeakDataTMP = textscan(fid,'%f %f %f %f %f %f %f %f\n','Delimiter',',');
-fclose(fid);
+fid = fopen(PeakFile); %open file
+PeakDataTMP = textscan(fid,'%f %f %f %f %f %f %f %f\n','Delimiter',','); %read file
+PeakDataTMP = cell2mat(PeakDataTMP); %convert from cell array to matrix, each row contains data for one peak
+fclose(fid); %close file

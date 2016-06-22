@@ -27,10 +27,7 @@ function merge_study_load(StudyName1_Full, StudyName2_Full, StudyName3_Full )
 %            The final merged data will have inst ids from Study1
 %
 
-global YAADA STUDY runbatch  STUDY1 STUDY2 STUDY3 PARTdataMat PARTidMat PARTdataMat1 PARTidMat1 PARTdataMat2 PARTidMat2 PARTidMiss2 INST INST1 INST2 INST3 PEAK1 PEAK2 PEAK3 PEAK PARTidFlds PARTdataFlds1 PARTdataFlds; 
-% if nargin > 2
-%   error('too many arguments, Call as init_study(StudyName1,StudyName2)');
-% end
+global FATES STUDY runbatch  STUDY1 STUDY2 STUDY3 PARTdataMat PARTidMat PARTdataMat1 PARTidMat1 PARTdataMat2 PARTidMat2 PARTidMiss2 INST INST1 INST2 INST3 PEAK1 PEAK2 PEAK3 PEAK PARTidFlds PARTdataFlds1 PARTdataFlds; 
 
 %-------------------------------------------------
 %PFR  for batch exec use a 'runbatch' flag = 1 in startup
@@ -104,7 +101,7 @@ end;
 % -------------------------------------------------------------------------
 %NOW, open study 1, put it aside, and 2, and put it aside (by renaming the data
 %matrices), note some data or matrices not renamed are assumed to be the same for
-% study 1 and 2 (ie YAADA data structure)
+% study 1 and 2 (ie FATES data structure)
 % -------------------------------------------------------------------------
 if exist([StudyName1 '.mat'],'file')
   fprintf('INFO, merge study, loading study2 %s \n',StudyName1)
@@ -154,7 +151,7 @@ STUDY3.Name = StudyName3;
     % set defaults
 if ~isempty(StudyName3_Path)
          path2use=StudyName3_Path;
-    else path2use=sprintf('%s/data',YAADA.yaada_data);
+    else path2use=sprintf('%s/data',FATES.yaada_data);
 end
     STUDY3.RawDir  = sprintf('%s/%s/raw',path2use,StudyName3);
 %     STUDY3.PK2Dir  = sprintf('%s/%s/pk2',path2use,StudyName3);
