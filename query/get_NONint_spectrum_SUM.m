@@ -17,16 +17,10 @@ function [NegResponse,PosResponse] = get_NONint_spectrum_SUM(PID,MZbins,Response
 % and rows represent summed response over each bin. Remember when plotting NegResponse
 % or PosResponse against mz use the mid point of each bin, not the input
 % MZbins which are the bin edges
-% 
-% see GET_SPECTRUM.
-% YAADA - Software Toolkit to Analyze Single-Particle Mass Spectral Data
-%
-% Copyright (C) 1999-2000 California Institute of Technology
-% Copyright (C) 2001-2008 Arizona State University
-% Copyright (C) 2008 Jonathan O. Allen
 
-global YAADA
+global FATES
 
+%% check inputs
 %check setup
 if nargin < 1 || nargin > 4
   error('Call as [NegResponse,PosResponse] = get_NONint_spectrum_SUM(PID,MZbins,ResponseType,Polarity)');
@@ -67,13 +61,15 @@ if Polarity == 2 && nargout ~= 2
   error('For dual polarity, call with 2 output arguments');
 end
 
+%% get spectra and bin
+
 %get raw spectra
 Spectrum = get_spectrum(PID,Polarity,ResponseType);
 
 %mem_stats=memory; for cking memory on windows 
 fprintf('INFO, getintspectrum sum, matrix size: %i X %i \n',size(Spectrum));
 
-%set up variables
+%set up output variables
 NumPart = size(PID,1);
 switch Polarity
   case 0 
@@ -90,8 +86,8 @@ end
 %get integer spectra for each particle
 for i = 1:NumPart
     if ~isempty(Spectrum{i,1}) %make sure particle has spectrum data
-        MZ = Spectrum{i,1}; 
-        Response = Spectrum{i,2};
+        MZ = Spectrum{i,1}(:,1); 
+        Response = Spectrum{i,1}(:,2);
         
         %neg spectra
         if ~isempty(NegResponse)
@@ -104,6 +100,7 @@ for i = 1:NumPart
                 NegResponse(1:length(NegTMP),i) = NegTMP;
             end
         end
+        
         % positive spectra
         if ~isempty(PosResponse)
             idx = MZ(:)<MZbins(end) & MZ(:)>= MZbins(2); %find pos mz

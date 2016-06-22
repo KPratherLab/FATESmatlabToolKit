@@ -42,7 +42,7 @@ end;
 instid_uq = unique(instid_set); %find unique values in instid_set
 
 curr_nr =size(PEAKMat,1);
-if (curr_nr>=STUDY.NumPkRows)  
+if (curr_nr == STUDY.NumPkRows)  
        %then current in memory PEAK Matrix is everything
        %just do find on peakmat
      disp('All peak data for study currently loaded in PEAK matrix. No need to load data from external file.');

@@ -1,4 +1,4 @@
-function [NegResponse,PosResponse] = get_int_spectrum_SUM(PID,MaxMZ,ResponseType,Polarity)
+ function [NegResponse,PosResponse] = get_int_spectrum_SUM(PID,MaxMZ,ResponseType,Polarity)
 % GET_INT_SPECTRUM_SUM returns spectrum matrix summed over integral m/z 
 % Call as [NegResponse,PosResponse] = get_int_spectrum_SUM(PID,MaxMZ,ResponseType,Polarity)
 % Where PID is set of paritcle identifiers stored as a nx2 matrix
@@ -17,6 +17,8 @@ function [NegResponse,PosResponse] = get_int_spectrum_SUM(PID,MaxMZ,ResponseType
 % The PosResponse columns span m/z = 1 to MaxMZ, the NegResponse columns span m/z = -1 to -MaxMZ. 
 
 global FATES
+
+%% check inputs
 
 %check setup
 if nargin < 1 || nargin > 4
@@ -58,6 +60,8 @@ if Polarity == 2 && nargout ~= 2
   error('For dual polarity, call with 2 output arguments');
 end
 
+%% get spectra and bin by integer
+
 %get raw spectra
 Spectrum = get_spectrum(PID,Polarity,ResponseType);
 
@@ -81,8 +85,8 @@ end
 %get integer spectra for each particle
 for i = 1:NumPart
     if ~isempty(Spectrum{i,1}) %make sure particle has spectrum data
-        MZ = Spectrum{i,1}; 
-        Response = Spectrum{i,2};
+        MZ = Spectrum{i,1}(:,1); 
+        Response = Spectrum{i,1}(:,2);
         
         %neg spectra
         if ~isempty(NegResponse)
