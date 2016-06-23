@@ -70,11 +70,21 @@ for k = 1:NumCol
     end
 end
 
-%sort and get unique PIDs 
-%must have a unique PID list to be able to use
-%ismemberR2012a_Get_spectrum_peak_script later.  Performing the unique
-%check external to ismember saves a bunch of time
-[PID,~,idxOrig] = unique(PID,'rows');
+%sort PIDs
+% [PID,PartIdx]     = sortrows(PID);
+% [~,PartIdxIdx]    = sort(PartIdx);
+[uPID,~,idxOrig] = unique(PID,'rows');
+%don't have to check for uniqueness, using
+%ismemberR2012a_Get_spectrum_peak_script input PID does not need to be
+%unique
+% uPID              = unique(PID,'rows'); %,'legacy'); %find unique PIDs in list
+% 
+% %check for duplicates in PID list
+% if size(uPID,1) < size(PID,1)
+%   Duplicates = 1;
+% else
+%   Duplicates = 0;
+% end 
 
 %% set up commmand and run it with helper script
 curr_nr =size(PEAKMat,1);
@@ -91,8 +101,20 @@ else
     get_spectrum_peak_script;
 end
 
+% script can handle non unique PID lists
+% % copy data for duplicate PIDs
+% % this will be slow, so only run as needed
+% if Duplicates
+%   % data is in first occurance in sorted list  
+%   FirstPID =  find([1; any(diff(PID),2)]); %find location of 1st unique PID
+%   LastPID = [FirstKID(2:end)-1; length(PID)]; %find location of last PID in set of unique PIDs
+%   for i = 1:length(FirstPID) 
+%       Spectrum(FirstPID(i):LastPID(i),:) = Spectrum(FirstPID,:);
+%   end
+% end
+
 % reorder spectral data to match original PID
-Spectrum = Spectrum(idxOrig,:);
+Spectrum = Spectrum(PartIdxIdx,:);
 
 clearvars -global LastPIDcompare tmpPID tmpTracker
 return

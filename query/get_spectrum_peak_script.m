@@ -24,15 +24,16 @@ getdiff = diff(tempUKID);
 Uidx = [true;any(getdiff,2)]; 
 UKID     = tempUKID(Uidx,:); %list of unique PIDs
 FirstPIDcompare = UKID(1,:);
+FirstKID = find(Uidx); %index of first PID in set of unique PIDS
 LastKID = [FirstKID(2:end)-1; length(tempUKID)]; %index of last PID in set of unique PIDS
 
 %the next three lines are a way of getting around the built in intersect
 %function which becomes slower in a non linear function as the PID list
 %gets longer due to some internal checks (unique) that we don't need to run
-%as we already know that UKID has already been filtered for
-%uniqueness. tmpPID does not have to be unique.  However if ismemberR2012a_Get_spectrum_peak_script becomes
+%as we already know that tmpPID and UKID have already been filtered for
+%uniqueness.  However if ismemberR2012a_Get_spectrum_peak_script becomes
 %too combersome to maintain can just replace the next three lines with the
-%intersect line commented out below them.  
+%intersect line commented out below them. 
 %find index of PIDs that have requested spectra
 [MatchSIDIdx,MatchUKIDIdx] = ismemberR2012a_Get_spectrum_peak_script(tmpPID,UKID,'rows'); %determine what and where UKID are in tmpPID
 MatchUKIDIdx = MatchUKIDIdx(MatchSIDIdx); %get index of matches in UKID

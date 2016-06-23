@@ -86,6 +86,9 @@ runbatch=0; %default
 % fates_folder='c:\fates_v210_prv3';
 % fates_data  =fates_folder;
 
+filesep2use='/';   %NOTE windows and unix will both work with /
+%but the input command in matlab treats \ as an escape
+%so I use / everywhere
 
 %Now if the startup info exists already use it
 if exist('startup_fates_info.mat','file')
@@ -127,7 +130,7 @@ else  %if startup info not exist, need to ask for it
         end
         
         %Data Dir
-        fates_data_entered = input(sprintf('Enter the high Level directory where your data is: [%s] ',fates_data),'s');
+        fates_data_entered = input('Enter the high Level directory where your data is:  ','s');
         fates_data          = strrep(fates_data_entered,'\',filesep2use);
         if isempty(fates_data)
             error('ERROR: The data folder is empty \n');
@@ -145,11 +148,11 @@ else  %if startup info not exist, need to ask for it
         s = input(sprintf('Number of PEAK matrix rows to read in at a time [%d] ',...
             FATES.NUM_PEAKROWS_TOREADIN));
         if ~isempty(s)
-            FATES.NUM_PEAKROWS_TOREADIN = s  %s should be read as double
+            FATES.NUM_PEAKROWS_TOREADIN = s;  %s should be read as double
         end
         
         save('startup_fates_info','FATES');
-        clear s;
+        clear s fates_data fates_data_entered filesep2use;
     end %of runbatch check
     
     
