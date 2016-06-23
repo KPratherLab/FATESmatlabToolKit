@@ -32,13 +32,10 @@ function [outPartID, Final_Part2Nrn_Idx, Final_Part2Nrn_Prox] = match_art2a(inPa
 % function and call to the original (subfunction below this one) renamed as
 % martch_art2a_part
 % November 8th, 2010
-%
-% Modified to be compatible to FATES toolkit
-% Camille Sultana 2016
 
 fprintf('INFO, match art2a, starting\n');
 
-%%  Check inputs
+% Check for errors in inputs
 if nargin < 2
     error('Too few input arguments.');
 elseif nargin > 5
@@ -86,24 +83,21 @@ Final_Part2Nrn_Prox=[];
 Part_setsize=100000;  %try 100k
 
 %loop through matching 100K particles at a time
-if length (inPartID) < Part_setsize %only do once if < 100K particles
+if length (inPartID) < Part_setsize %only do once if < 50K particles
     [outPartID Final_Part2Nrn_Idx Final_Part2Nrn_Prox]= match_art2a_part(inPartID, WeightMatrix, Polarity, VigilanceFactor, Exclusive);
     disp(5)
     whos Final*
 else
     numInt = ceil((length (inPartID)) / Part_setsize); %find number of 100K chunks
     for i = 1:numInt %get 100K lists of particles
-        %get 100K particle list to match with
         if i < numInt
             inPID2 = inPartID((i-1)*Part_setsize + 1:i*Part_setsize,:);            
         else
             inPID2 = inPartID((1+Part_setsize*(i-1)):length(inPartID),:);            
         end
-        %perform match
         [matched Part2Nrn_Idx Part2Nrn_Prox]= match_art2a_part(inPID2, WeightMatrix, Polarity, VigilanceFactor, Exclusive); %perform matching
-        
-        %combine results from previous loops
-        if i == 1 %if first iteration then no combination needed
+           %whos *Part2Nrn*
+        if i == 1
            outPartID          = matched;
            if (size(Part2Nrn_Idx,1)==1)
                 Final_Part2Nrn_Idx =Part2Nrn_Idx';
@@ -111,9 +105,8 @@ else
            end;
            Final_Part2Nrn_Prox=Part2Nrn_Prox;
         else
-           outPartID          = cellfun(@(X,Y) [X; Y], matched, outPartID, 'UniformOutput',false); %combine PID lists
-           %combine metrics
-           if (size(Part2Nrn_Idx,1)==1) 
+           outPartID          = cellfun(@(X,Y) [X; Y], matched, outPartID, 'UniformOutput',false);
+           if (size(Part2Nrn_Idx,1)==1)
                     Final_Part2Nrn_Idx =[Final_Part2Nrn_Idx;  Part2Nrn_Idx'];
            else     Final_Part2Nrn_Idx =[Final_Part2Nrn_Idx;  Part2Nrn_Idx];
            end;
@@ -127,7 +120,7 @@ for i = 1:length(outPartID)
 end
 
 function [outPartID, Part2Nrn_Idx, Part2Nrn_Prox] = match_art2a_part(inPartID, WeightMatrix, Polarity, VigilanceFactor, Exclusive)
-% % Call as [outPartID] = match_art2a_part(inPartID, WeightMatrix, Polarity, VigilanceFactor, Exclusive)
+% % Call as [outPartID] = match_art2a_part_CS(inPartID, WeightMatrix, Polarity, VigilanceFactor, Exclusive)
 % where outPartID is a cell array where each cell contains the PartIDs the particles that are within the
 %          specified VigilanceFactor to the corresponding cluster in the WeightMatrix, such that row M of
 %          WeightMatrix corresponds to the	particles in cell M of outPartID.

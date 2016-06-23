@@ -27,12 +27,11 @@ function [outPartID, outWeightMatrix, RegroupTable ] = regroup_art2a(inPID, inWe
 % is stored in a column rather than a row.  This decreases the run time.
 % Also made various coding changes to improve run time. 
 % Camille Sultana May 2014
-% Modified to be compatible with FATES Toolkit
-% Camille Sultana 2016
 
 fprintf('INFO, regroup, \n');
 
-%% check input variables
+%%
+%check input variables
 if nargin < 3
    error('Wrong number of input arguments');
 end
@@ -51,8 +50,7 @@ else
     end
 end  
 
-%% 
-% set up variables
+%set up variables
 NoPart = []; 
 K = 0;
 Table2{1} = 'I';
@@ -98,7 +96,7 @@ end
 RegroupTable = Table2';
 fprintf('INFO,regroup, %i merging happened\n',K);
 
-%% sort results 
+%sort results 
 noPID             = cell2mat(cellfun(@isempty, inPID, 'uniformoutput', false)); %remove empty clusters
 inPID = inPID(~noPID);
 inWeightMatrix = inWeightMatrix(:,~noPID);
