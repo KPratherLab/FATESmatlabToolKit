@@ -1,7 +1,7 @@
 function [outPartID, outWeightMatrix, partIDCount, trackNeuron, avgPROXALL, PDistALL] = run_art2a(inPartID, Polarity, MaxMass, LearningRate, VigilanceFactor, MaxIteration, NegArea, PosArea)
-% RUN_ART2A: ART2a implementation for the YAADA Database.
+% RUN_ART2A: ART2a implementation for the FATES Database.
 % Call as function [outPartID, outWeightMatrix, partIDCount, trackNeuron, PDistALL] = 
-% run_art2a_CS_pr_v2(inPartID, Polarity, MaxMass, LearningRate, VigilanceFactor, MaxIteration)
+% run_art2a(inPartID, Polarity, MaxMass, LearningRate, VigilanceFactor, MaxIteration, NegArea, PosArea)
 %
 %   inPartID is set of paritcle identifiers stored as a nx2 matrix
 %       inPartID(:,1) = InstID
@@ -10,8 +10,10 @@ function [outPartID, outWeightMatrix, partIDCount, trackNeuron, avgPROXALL, PDis
 %       or dual ion.  If Polarity is set to 0, negative spectra are mandated,
 %       1, positive spectra are mandated, and 2, both polarities are considered.
 %       Dual Polarity (2) is default.
-%   MaxMass (optional) is the maximum mass to charge ratio (default is
-%               the YAADA.MaxMZ),
+%   MaxMass (optional) is the maximum mass to charge ratio that will be used
+%               when retrieving the particle spectra utilizing get_int_spectrum_SUM 
+%               (default is the FATES.MaxMZ).  If particle spectra are
+%               provided (NegArea, PosArea) MaxMass is NOT utilized.
 %   LearningRate (optional) is the learning rate (default is 0.05),
 %   VigilanceFactor (optional)is the vigilance factor (default is 0.8),
 %   MaxIteration (optional) is the maximum number of iterations (default is 20)
@@ -57,6 +59,9 @@ function [outPartID, outWeightMatrix, partIDCount, trackNeuron, avgPROXALL, PDis
 % Changed outWeightMatrix so that each cluster WM
 % is stored in a column rather than a row.
 % Camille Sultana May 2014
+% 
+% Further refinements to be compatible with new FATES toolkit
+% Camille Sultana 2016
 
 fprintf('INFO, run_art2a_CS, starting\n');
 
@@ -97,7 +102,7 @@ if (~(size(inPartID,2)==2))  %check for Nx2 matrix
 end
 
 if ~exist('MaxMass', 'var')
-   MaxMass = YAADA.MaxMZ;
+   MaxMass = FATES.MaxMZ;
 end
 
 if ~exist('LearningRate', 'var')
@@ -188,9 +193,6 @@ while EndTest == 0;
     
     %cluster particles
     for I = 1:NumPID 
-        if mod(I,10000) == 0
-            I
-        end
             [ClosestProximity(I), ClosestNeuron(I)] = max(AreaMatrix(:,RandomOrder(I))'*WeightMatrix);
             if ClosestProximity(I) >= VigilanceFactor; %if particle matches a current cluster
                     temp = WeightMatrix(:,ClosestNeuron(I))*adjRate + (AreaMatrix(:,RandomOrder(I)) * LearningRate); %add to cluster and alter WM
