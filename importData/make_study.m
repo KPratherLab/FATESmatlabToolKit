@@ -49,6 +49,8 @@ STUDY.LastInstID = 0;
 if (runbatch==0)
     %check to see if any files in processed directory
     fileList = dir(fullfile(STUDY.ProcDir,sprintf('*%s*',STUDY.Name)));
+    fileList = {fileList.name}';
+    fileList(ismember(fileList,sprintf('%s.mat',STUDY.Name))) = [];
     if ~isempty(fileList) %found files in processed directory
         RemDataFile=input('WARNING,files found in processed directory. Do you want to overwrite database files? yes = 1, no = 0  ');
         if RemDataFile == 1 %choose to overwrite files

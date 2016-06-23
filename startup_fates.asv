@@ -89,70 +89,70 @@ runbatch=0; %default
 
 %Now if the startup info exists already use it
 if exist('startup_fates_info.mat','file')
-    fprintf('INFO, startup_fates, loading a pre-existing startup_fates_info.mat file \n');
-    load startup_fates_info;
-    
+  fprintf('INFO, startup_fates, loading a pre-existing startup_fates_info.mat file \n');
+  load startup_fates_info;
+
 else  %if startup info not exist, need to ask for it
-    % set up default structure
-    FATES.Version = '1.0 CMS';
-    FATES.MaxMZ = 350;
-    FATES.DeltaMZ = 0.5;
-    FATES.SpecGrav = 1.3;
-    
-    %PFR added this if  logic for batch executn, otherwise defaults are used
-    % note, to avoid defaults, you coud enter start up info so that its saved
-    % in a startup_info mat file
-    if (runbatch==0)
-        
-        % FATES Dir
-        s = strrep(input('Main FATES directory?  ','s'),'\',filesep2use);
-        if ~isempty(s)
-            FATES.MainDir = s;
-        end
-        if ~exist(FATES.MainDir,'dir');
-            if ~mkdir(FATES.MainDir);
-                error('Cannot create directory %s',FATES.MainDir);
-            end
-        end
-        
-        % User Dir
-        s = strrep(input('User program directory?  ','s'),'\',filesep2use);
-        if ~isempty(s)
-            FATES.UserDir = s;
-        end
-        if ~exist(FATES.UserDir,'dir');
-            if ~mkdir(FATES.UserDir);
-                error('Cannot create directory %s',FATES.UserDir);
-            end
-        end
-        
-        %Data Dir
-        fates_data_entered = input(sprintf('Enter the high Level directory where your data is: [%s] ',fates_data),'s');
-        fates_data          = strrep(fates_data_entered,'\',filesep2use);
-        if isempty(fates_data)
-            error('ERROR: The data folder is empty \n');
-        end;
-        if ~exist(fates_data);
-            error('ERROR: The data folder does not exist - exiting \n');
-        end;
-        FATES.fates_data = fates_data;
-        
-        % the peak data is 1 big file and is read in by chunks of rows
-        % The more rows are read in at a time the better for performance of
-        % FATES, but it might slow down the PC
-        % For a PC w/<5GB memory 1 to 5M rows should be OK,
-        FATES.NUM_PEAKROWS_TOREADIN= 1000000;
-        s = input(sprintf('Number of PEAK matrix rows to read in at a time [%d] ',...
-            FATES.NUM_PEAKROWS_TOREADIN));
-        if ~isempty(s)
-            FATES.NUM_PEAKROWS_TOREADIN = s  %s should be read as double
-        end
-        
-        save('startup_fates_info','FATES');
-        clear s;
-    end %of runbatch check
-    
-    
+  % set up default structure
+  FATES.Version = '1.0 CMS';
+  FATES.MaxMZ = 350;
+  FATES.DeltaMZ = 0.5;
+  FATES.SpecGrav = 1.3;
+
+%PFR added this if  logic for batch executn, otherwise defaults are used
+% note, to avoid defaults, you coud enter start up info so that its saved
+% in a startup_info mat file
+if (runbatch==0)
+% 
+  % FATES Dir
+  s = strrep(input('Main FATES directory?  ','s'),'\',filesep2use);
+  if ~isempty(s)
+    FATES.MainDir = s;
+  end
+  if ~exist(FATES.MainDir,'dir');
+    if ~mkdir(FATES.MainDir);
+      error('Cannot create directory %s',FATES.MainDir);
+    end
+  end
+
+  % User Dir
+  s = strrep(input('User program directory?  ','s'),'\',filesep2use);
+  if ~isempty(s)
+    FATES.UserDir = s;
+  end
+  if ~exist(FATES.UserDir,'dir');
+    if ~mkdir(FATES.UserDir);
+      error('Cannot create directory %s',FATES.UserDir);
+    end
+  end
+  
+  %Data Dir
+  fates_data_entered = input(sprintf('Enter the high Level directory where your data is: [%s] ',fates_data),'s');
+  fates_data          = strrep(fates_data_entered,'\',filesep2use);
+  if isempty(fates_data)
+      error('ERROR: The data folder is empty \n');
+  end;
+  if ~exist(fates_data);
+      error('ERROR: The data folder does not exist - exiting \n');
+  end;
+  FATES.fates_data = fates_data;     
+
+  %PFR, the peak data is 1 big file and is now read in by chunks of rows
+  % The more rows are read in at a time the better for performance of
+  % FATES, but it might slow down the PC
+  % For a PC w/<5GB memory 1 to 5M rows should be OK,
+  FATES.NUM_PEAKROWS_TOREADIN= 1000000;  
+  s = input(sprintf('Number of PEAK matrix rows to read in at a time [%d] ',...
+                    FATES.NUM_PEAKROWS_TOREADIN));
+  if ~isempty(s)
+      FATES.NUM_PEAKROWS_TOREADIN = s  %s should be read as double
+  end
+  
+  save('startup_fates_info','FATES');
+  clear s;
+end %of runbatch check
+
+
 end  %checking for startup and getting folder with fates
 
   
@@ -163,6 +163,9 @@ addpath(genpath(FATES.UserDir));
 % Prints FATES version and copyright notice
 % Do not modify the next lines, license.txt, or credits.txt.
 
+%PFR next lines only informational,
+%type(fullfile(FATES.MainDir,'license.txt'));
+%type(fullfile(FATES.MainDir,'credits.txt'));
 
 return
 

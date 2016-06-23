@@ -1,5 +1,6 @@
 function [calParams, speedModes] = pslCal(pslTime, pslVels, pslSizes, N, bins)
-% Size calibration based on speed and spit out distribution modes in microns
+% Generates Size calibration parameters for da_noz funciton based on speed 
+% Also spits out distribution modes in microns
 % Call as [calParams, speedModes] = pslCal(pslTime, pslVels, pslSizes, N, bins)
 %
 % pslTime is a Nx2 matrix specifying the start and stop times for an N
@@ -20,6 +21,7 @@ function [calParams, speedModes] = pslCal(pslTime, pslVels, pslSizes, N, bins)
 % Modified by Camille Sultana 2016
 global PARTdataMat PARTidFlds PARTidMat PARTdataFlds
 
+%% check inputs
 if nargin == 2
     N = 3;
     bins = 100;
@@ -30,8 +32,10 @@ if N < 1 && N > 5
     error('The order of the polynomial has to be a number between 1 and 5');
 end
 
+%% get speed data 
 speedModes = zeros(size(pslTime,1),1);
 for i = 1:size(pslTime,1)
+    %find relevant data
     getSpeed = PARTdataMat(:,PARTdataFlds.VELOCITY) > pslVels(i,1) & PARTdataMat(:,PARTdataFlds.VELOCITY) < pslVels(i,2); 
     getTime = PARTidMat(:,PARTidFlds.TIME) > pslTime(i,1) & PARTidMat(:,PARTidFlds.TIME) < pslTime(i,2);
     Speed = PARTdataMat(getSpeed & getTime, PARTdataFlds.VELOCITY);
@@ -60,6 +64,7 @@ for i = 1:size(pslTime,1)
     set(gca, 'FontSize', 6)
 end
 
+%% fit data 
 p = polyfit(speedModes, pslSizes, N);            % fits data to polynomial
 x = linspace(min(speedModes), max(speedModes), 100); % creates data input for the polynomial evaluation
 yFit = polyval(p,x);                                 % evaluate the polynomial

@@ -47,6 +47,8 @@ for m=1:numAMS
 %     reason
     [HitParticleCounter, IonType, Speed,TimeStampData, LaserPower, Data] = get_spectrumAMS(fullfileAMS{m}); %extract raw data from .ams file
     if IonType == 0 %pos spectra
+        %note need to use the appropriate script here if using LVN (oldTOF)
+        %or SLY (newTOF) data
         [FinalPeakSave, tempRing] = PeakList_gen_LVNFinal(Data, IonType, PoscalibIntercept, PoscalibSlope,3); % outputs calibrated peak lists and baseline corrected data
     else %neg spectra
         [FinalPeakSave, tempRing] = PeakList_gen_LVNFinal(Data, IonType, NegcalibIntercept, NegcalibSlope,3); % outputs calibrated peak lists and baseline corrected data
