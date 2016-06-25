@@ -21,10 +21,10 @@ function merge_study_load
 %    in study1 and study2, then decide if the data for a pair of
 %    instruments needs to be merged.  There are 3 choices
 %    a) merely append all inst data b/c the inst ids are all different
-%         merge_study_inst(0)   %0 signifies append data
+%         merge_study_inst(1)   %1 signifies append data
 %    b) append all data but renumber inst ids in study2 b/c they overlap to
 %    inst ids in study 1
-%          merge_study_inst(1)
+%          merge_study_inst(0)  or merge_study_inst()
 %          That program will renumber inst2 ids to
 %              start after the last inst1 ids
 %    c)merge data from the same instumnets in study1 and study2
@@ -105,10 +105,11 @@ if ~isempty(k)
     error('Expecting word for StudyName3 (ie no spaces)');
 end
 
+%% set up study 3 structure
 STUDY3.Name = StudyName3;
 STUDY3.NameFull = StudyName_Full3;
 
-% STUDY 3 Processed Data Directory
+% Processed Data Directory
 s = strrep(input('Processed data directory?  ','s'),'\',filesep2use);
 if ~isempty(s)
     STUDY3.ProcDir = s;
@@ -127,6 +128,28 @@ if ~isempty(fileList)
     fprintf('      You must delete them before running merge. \n')
     error('Merge study will not overwrite preexisting study files');
 end
+
+STUDY3.DataFile = fullfile(STUDY3.ProcDir, sprintf('Data_%s.mat',STUDY3.Name));
+fid = fopen(STUDY3.DataFile,'w'); %create file for later use
+fclose(fid);
+STUDY3.PARTidMissed_filename = fullfile(STUDY3.ProcDir, sprintf('PARTidMissed_%s.bin',STUDY3.Name));
+STUDY3.PARTdataMissed_filename = fullfile(STUDY3.ProcDir, sprintf('PARTdataMissed_%s.bin',STUDY3.Name));
+STUDY3.PeakMat_filename  = fullfile(STUDY3.ProcDir, sprintf('PEAKMAT_%s.bin',STUDY3.Name));
+STUDY3.datadef = fullfile(STUDY3.ProcDir, sprintf('datadef_%s.mat',STUDY3.Name)); 
+copyfile(STUDY1.datadef, STUDY3.datadef);
+
+STUDY3.DataList = fullfile(STUDY3.ProcDir, sprintf('DataList_%s.mat',STUDY3.Name)); 
+load(STUDY1.DataList);
+nameSEM1 = nameSEM;
+nameSET1 = nameSET;
+namePKL1 = namePKL;
+procDATE1 = procDATE;
+load(STUDY2.DataList);
+nameSEM = [nameSEM1; nameSEM];
+nameSET = [nameSET1; nameSET];
+namePKL = [namePKL1; namePKL];
+procDATE = [procDATE1; procDATE];
+
 
 %% load pre existing studies
 % -------------------------------------------------------------------------
@@ -164,39 +187,11 @@ if exist([StudyName2_Full '.mat'],'file')
 else error('ERROR, merge study, study2 name not found %s \n',StudyName2);
 end;
 
-num1 = size(PARTidMat1,1);
-num2 = size(PARTidMat2,1);
-
-%% set up study 3 structure
-
-%set up file names and directories
-STUDY3.DataFile = fullfile(STUDY3.ProcDir, sprintf('Data_%s.mat',STUDY3.Name));
-fid = fopen(STUDY3.DataFile,'w'); %create file for later use
-fclose(fid);
-STUDY3.PARTidMissed_filename = fullfile(STUDY3.ProcDir, sprintf('PARTidMissed_%s.bin',STUDY3.Name));
-STUDY3.PARTdataMissed_filename = fullfile(STUDY3.ProcDir, sprintf('PARTdataMissed_%s.bin',STUDY3.Name));
-STUDY3.PeakMat_filename  = fullfile(STUDY3.ProcDir, sprintf('PEAKMAT_%s.bin',STUDY3.Name));
-
-%add raw dirs data to new study
+%add raw dir data to new study
 STUDY3.RawDir = {STUDY1.RawDir STUDY2.RawDir};
 
-%set datadef file to study1
-STUDY3.datadef = fullfile(STUDY3.ProcDir, sprintf('datadef_%s.mat',STUDY3.Name)); 
-copyfile(STUDY1.datadef, STUDY3.datadef);
-
-%combine raw datalists
-STUDY3.DataList = fullfile(STUDY3.ProcDir, sprintf('DataList_%s.mat',STUDY3.Name)); 
-load(STUDY1.DataList);
-nameSEM1 = nameSEM;
-nameSET1 = nameSET;
-namePKL1 = namePKL;
-procDATE1 = procDATE;
-load(STUDY2.DataList);
-nameSEM = [nameSEM1; nameSEM];
-nameSET = [nameSET1; nameSET];
-namePKL = [namePKL1; namePKL];
-procDATE = [procDATE1; procDATE];
-save(STUDY3.DataList,'nameSEM','nameSET','namePKL','nameINST','procDATE');
+num1 = size(PARTidMat1,1);
+num2 = size(PARTidMat2,1);
 
 %% need to do checks to make sure both studies are compatible
 
@@ -227,8 +222,7 @@ if isequal(PARTdataFlds1,PARTdataFlds2) %check to see if fields are equal
 else %pad then combine if not equal
     fprintf('%s\n%s\n','Warning: PARTdataFlds between the two studies do not match.',...
         'The new PARTdataMat matrix will be padded or reorganized to account for this mismatch');
-    fprintf('%s\n%s\n','Warning: The datadef file for STUDY 3 is simply a copy of STUDY 1.',...
-        'User will need to manually alter STUDY3 datadef file for it to accurately detail database structure');    
+    
     %compare fields and get locations for placing data
     PDATAidx = cell(2,2);
     PARTdataFlds1name = lower(fieldnames(PARTdataFlds1));
@@ -278,8 +272,6 @@ clear PARTdataMat1 PARTdataMat2 PARTdataFlds1 PARTdataFlds2
 if ~isequal(PARTidFlds1,PARTidFlds2)
     fprintf('%s\n%s\n','Warning: PARTidFlds between the two studies do not match.',...
         'The new PARTidMat matrix will be padded or reorganized to account for this mismatch');
-    fprintf('%s\n%s\n','Warning: The datadef file for STUDY 3 is simply a copy of STUDY 1.',...
-        'User will need to manually alter STUDY3 datadef file for it to accurately detail database structure');  
     %compare fields and get locations
     PIDidx = cell(2,2);
     PARTidFlds1name = lower(fieldnames(PARTidFlds1));
@@ -334,10 +326,6 @@ INSTf2 = sort(fieldnames(INST2));
 INSTfL1 = lower(INSTf1);
 INSTfL2 = lower(INSTf2);
 if ~isequal(INSTf1,INSTf2)
-    fprintf('%s\n%s\n','Warning: INST field names between the two studies do not match.',...
-        'The new INST structure will be padded or reorganized to account for this mismatch');
-    fprintf('%s\n%s\n','Warning: The datadef file for STUDY 3 is simply a copy of STUDY 1.',...
-        'User will need to manually alter STUDY3 datadef file for it to accurately detail database structure');  
     %find matching field names except for capitalization
     [test3,test4] = ismember(INSTfL2, INSTfL1); %compare lowercase
     [test7,test8] = ismember(INSTf2,INSTf1); %compare original

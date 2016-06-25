@@ -15,29 +15,32 @@ function [PARTidMissed, PARTdataMissed] = load_missed(PidMissedFile, PdataMissed
 %each row corresponds to data for a single particle
 
 global PARTidMat PARTdataMat
+PARTidMissed = [];
+PARTdataMissed = [];
 
 %open up PidMissedFile
 tmp = fopen(PidMissedFile);
 if tmp ~= -1
     PARTidMissed = fread(tmp,'double');
     fclose(tmp);
+    
+    %shape matrix
+    numRows = length(PARTidMissed)/size(PARTidMat,2);
+    PARTidMissed = reshape(PARTidMissed, [size(PARTidMat,2) numRows]);
+    PARTidMissed = PARTidMissed';
 end
-numRows = length(PARTidMissed)/size(PARTidMat,2);
 
-%shape matrix
-PARTidMissed = reshape(PARTidMissed, [size(PARTidMat,2) numRows]);
-PARTidMissed = PARTidMissed';
 
 %open up PdataMissedFile
 tmp = fopen(PdataMissedFile);
 if tmp ~= -1
     PARTdataMissed = fread(tmp,'single');
     fclose(tmp);
+    
+    %shape matrix
+    numRows = length(PARTdataMissed)/size(PARTdataMat,2);
+    PARTdataMissed = reshape(PARTdataMissed, [size(PARTdataMat,2) numRows]);
+    PARTdataMissed = PARTdataMissed';
 end
 
-numRows = length(PARTdataMissed)/size(PARTdataMat,2);
-
-%shape matrix
-PARTdataMissed = reshape(PARTdataMissed, [size(PARTdataMat,2) numRows]);
-PARTdataMissed = PARTdataMissed';
 end

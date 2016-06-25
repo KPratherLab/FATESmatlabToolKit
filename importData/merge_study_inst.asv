@@ -9,10 +9,6 @@ function merge_study_inst(append_ornot)
 %   if append_ornot =1 then there are overlapping instids (but not actually overlapping experiments) and new instids
 %   need to be made
 % 
-% Updated for final version
-% added flexibilty if data structures don't match
-% Camille Sultana 2016
-
 global FATES STUDY DATADEF  runbatch  STUDY1 STUDY2 STUDY3 PARTdataMat PARTdataFlds PARTidMat PARTidFlds PARTidMat2 INST INST1 INST2 PEAK1 PEAK2 PEAK PEAKFlds PARTidFlds2 num1 num2 PARTidMissed; 
 
 %% change inst data
@@ -27,7 +23,6 @@ for i=1:length(INST2)
         INST2(i).InstID =INST2(i).InstID+instid_2start; 
 end;
 INST=[INST1 INST2];
-STUDY3.LastInstID = max(INST.InstID);
 clear global INST1 INST2
 
 %% change PART data
@@ -77,7 +72,7 @@ clear global PEAK1 PEAK2 PEAKFlds1 PEAKFlds2
 %% Now save merged study info
 STUDY=STUDY3;
 fprintf('INFO, merge study,saving study info to %s\n',STUDY.Name);
-save(STUDY.NameFull,'STUDY');
+save(STUDY.Name,'STUDY');
 
 save(STUDY.DataFile,'INST','PARTidMat','PARTdataMat','PARTidFlds','PARTdataFlds','PEAK','PEAKFlds','-v7.3');
 

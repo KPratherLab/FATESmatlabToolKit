@@ -105,7 +105,7 @@ end
 %find all files where data is (looking for .sem, .set, .pkl, .inst, .pol files)
 fprintf('INFO, make study about to find all data files\n')
 findData(STUDY.RawDir);
-save(fullfile(STUDY.ProcDir,'DataList.mat'),'nameSEM','nameSET','namePKL','nameINST','procDATE');
+save(STUDY.DataList,'nameSEM','nameSET','namePKL','nameINST','procDATE');
 
 %get particle and inst and peak data
 single(PARTdataMat);

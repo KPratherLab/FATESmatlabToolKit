@@ -1,16 +1,12 @@
 function merge_study_part(inst1_set,inst2_set)
 % Call as merge_study_part(inst1_set,inst2_set)
-% merge_study_load must be run before this
-%   inst1_set and inst2_set are the study1 inst ids and study2 inst ids that match up,
+% MERGE_YDB 
+%    inst1_set and inst2_set are the study1 inst ids and study2 inst ids that match up,
 %   This program will go thru each pair and change inst ids and part ids in study2
 %         to follow the last part id for study1 
-%  Then it will rewrite all data into merge filename (ie the study3)
+%   Then it will rewrite all data into merge filename (ie the study3)
 %  All instids in study2 need to be assigned to an instid in study1,
 %  however study1 can have instids that are not used in reassigning study2
-%
-% Updated for final version
-% added flexibilty if data structures don't match
-% Camille Sultana 2016
 %
 global FATES STUDY DATADEF  runbatch  STUDY1 STUDY2 STUDY3 PARTdataMat PARTdataFlds PARTidMat PARTidFlds PARTidMat2 INST INST1 INST2 PEAK1 PEAK2 PEAK PEAKFlds PARTidFlds2 num1 num2 PARTidMissed; 
 
@@ -72,16 +68,60 @@ PARTidMat((num1+1):end,[PARTidFlds.INSTID PARTidFlds.PARTID]) = PARTidMat2(:,[PA
 
 %save PARTidMiss data
 fid = fopen(STUDY3.PARTidMissed_filename,'a');
-fwrite(fid,PARTidMissed','double');
-fclose(fid);
+    fwrite(fid,PARTidMat','single');  
+    fclose(fid);
+ 
+%update PARTdataMat info
+if STUDY1.Gauge == STUDY2.Gauge
+    PARTdataMat = [PARTdataMat1;PARTdataMat2]; %combine if same number of columns
+else %otherwise pad smaller matrix with zeros
+    fprintf('%s\n%s\n%s\n', 'Warning: Number of PARTdataFlds between STUDY1 and STUDY2 do not match.','Likely one study employs gauge data while other does not','PARTdataMat from study without gauge data will be padded with NaNs');
+    if STUDY1.Gauge == 1 %study 1 has more columns
+        PARTdataMat2 = [PARTdataMat2 nan(size(PARTdataMat2,1),size(PARTdataMat1,2)-size(PARTdataMat2,2))];
+    else %study 2 has more columns
+        PARTdataMat1 = [PARTdataMat1 nan(size(PARTdataMat1,1),size(PARTdataMat2,2)-size(PARTdataMat1,2))];
+    end
+    PARTdataMat = [PARTdataMat1;PARTdataMat2];
+end
 
-clear global PARTidMissed PARTidMat2 PARTidFlds2
+%save PARTdataMiss data
+if STUDY1.Gauge == STUDY2.Gauge
+    %note this might only work for windows,  need to generalize or add more
+    %options for other systems
+    copyEval = sprintf('copy %s+%s %s /B', STUDY1.PARTdataMissed_filename, STUDY2.PARTdataMissed_filename, STUDY3.PARTdataMissed_filename);
+    system(copyEval);
+else
+    if STUDY1.Gauge == 1 %more columns in study1 than study2
+        copyfile(STUDY1.PARTdataMissed_filename, STUDY3.PARTdataMissed_filename);
+        fid = fopen(STUDY2.PARTdataMissed_filename); %add STUDY 1 PARTdataMiss
+        PARTdataMiss2 = textscan(fid,'%f32 %f32 %f32','Delimiter',','); %read in STUDY 2 PARTdataMiss and pad it
+        fclose(fid);
+        PARTdataMiss2 = [PARTdataMiss2 nan(size(PARTdataMiss2,1), size(PARTdataMat1,2)-size(PARTdataMiss2,2))];
+        fid = fopen(STUDY3.PARTdataMissed_filename,'a');
+        fprintf(fid,'%g, %g, %g %u %u %u %g %g %g %g\n',PARTdataMiss2');
+        fclose(fid);
+    else
+        fid = fopen(STUDY1.PARTdataMissed_filename); %add STUDY 1 PARTdataMiss
+        PARTdataMiss1 = textscan(fid,'%f32 %f32 %f32','Delimiter',','); %read in STUDY 2 PARTdataMiss and pad it
+        fclose(fid);
+        PARTdataMiss1 = [PARTdataMiss1 nan(size(PARTdataMiss1,1), size(PARTdataMat2,2)-size(PARTdataMiss1,2))];
+        fid = fopen(STUDY3.PARTdataMissed_filename,'w');
+        fprintf(fid,'%g, %g, %g %u %u %u %g %g %g %g\n',PARTdataMiss1');
+        fclose(fid);
+        %note this might only work for windows,  need to generalize or add more
+        %options for other systems
+        copyEval = sprintf('TYPE %s>>%s', STUDY2.PARTdataMissed_filename, STUDY3.PARTdataMissed_filename);
+        system(copyEval);
+    end
+end
+
 %% redo PEAK data
+%copy PeakMat data from STUDY1 which will remain unchanged
+copyfile(STUDY1.PeakMat_filename, STUDY3.PeakMat_filename);
 
-%get peak2 data and rewrite updating inst and part id and append to file
+%get peak2 data and rewrite and append to file
 fip =fopen(STUDY3.PeakMat_filename,'a');
 STUDY=STUDY2;
-PEAK = PEAK2;
 clearlastchunk_PEAKMat=true;
 rows_set2read=[];
 q=char(39);  %quote character
@@ -99,7 +139,6 @@ STUDY3.NumPkRows=STUDY1.NumPkRows+STUDY2.NumPkRows;
 STUDY3.NumPkCols=STUDY1.NumPkCols;
 
 PEAK = [PEAK1 PEAK2];
-clear global PEAK1 PEAK2 
 
 %% redo INST data
 INST = INST1;
@@ -117,14 +156,12 @@ for i=1:length(INST2)
     end
 end;
 
-clear global INST1 INST2
+
 %% Now save merged study info
 STUDY=STUDY3;
 fprintf('INFO, merge study,saving study info to %s\n',STUDY.Name);
 
-save(STUDY.NameFull,'STUDY');
+save(STUDY.Name,'STUDY');
 save(STUDY.DataFile,'INST','PARTidMat','PARTdataMat','PARTidFlds','PARTdataFlds','PEAK','PEAKFlds','-v7.3');
-
-clear global STUDY1 STUDY2 STUDY3 num1 num2
 %return
 

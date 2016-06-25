@@ -86,10 +86,6 @@ runbatch=0; %default
 % fates_folder='c:\fates_v210_prv3';
 % fates_data  =fates_folder;
 
-filesep2use='/';   %NOTE windows and unix will both work with /
-%but the input command in matlab treats \ as an escape
-%so I use / everywhere
-
 %Now if the startup info exists already use it
 if exist('startup_fates_info.mat','file')
     fprintf('INFO, startup_fates, loading a pre-existing startup_fates_info.mat file \n');
@@ -101,6 +97,9 @@ else  %if startup info not exist, need to ask for it
     FATES.MaxMZ = 350;
     FATES.DeltaMZ = 0.5;
     FATES.SpecGrav = 1.3;
+    filesep2use='/';   %NOTE windows and unix will both work with /
+    %but the input command in matlab treats \ as an escape
+    %so I use / everywhere
     
     %PFR added this if  logic for batch executn, otherwise defaults are used
     % note, to avoid defaults, you coud enter start up info so that its saved

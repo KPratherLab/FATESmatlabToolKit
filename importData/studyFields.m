@@ -198,4 +198,4 @@ DATADEF.desc = 3;
 [DATADEF((length(partidNAME)+length(peakFldsNAME)+length(peakNAME)+1):(length(partdataNAME)+length(partidNAME)+length(peakFldsNAME)+length(peakNAME))).desc] = partdataDESC{:};
 [DATADEF((length(partdataNAME)+length(partidNAME)+length(peakFldsNAME)+length(peakNAME)+1):(length(partdataNAME)+length(partidNAME)+length(peakFldsNAME)+length(instFldsNAME)+length(peakNAME))).desc] = instDESC{:};
 
-save(fullfile(STUDY.ProcDir,'datadef.mat'),'DATADEF'); %save data definitions file
+save(STUDY.datadef,'DATADEF'); %save data definitions file
