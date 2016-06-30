@@ -131,7 +131,7 @@ else
 end
 
 if isempty(clustRelation) || ~exist('clustRelation','var')
-    clustRelation = zeros(numPart,2);
+    clustRelation = zeros(numPart,1);
 else
     if size(clustRelation,1) < size(clustRelation,2)
         clustRelation = clustRelation';
