@@ -44,7 +44,7 @@ end
 if ~exist('ResponseType','var')
   ResponseType = 'RelArea';
 else
-  if ~isword(ResponseType);
+  if ~ischar(ResponseType);
     error('Expecting word for ResponseType');
   end
 end

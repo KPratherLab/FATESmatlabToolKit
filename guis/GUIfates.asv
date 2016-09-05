@@ -381,7 +381,6 @@ gf.Visible = 'on';
     %function to filter data based on user selection
     function filterData(source,callbackdata)
        %do filter
-        filterIDX = true(numPart,1);
         if mzFilter.Value == 1
             filterValue = mzValue2.String;
             filterValue = str2double(filterValue);
@@ -525,10 +524,11 @@ gf.Visible = 'on';
             clusterSelect.String = uniqueLabel;
             clusterSelect5.String = uniqueLabel;
             clusterSelect4.String = outputLabel;
-            clusterSelect5.Max = length(uniqueLabel);
             if clusterSelect.Value == clusterSelect3.Value
                 changeCluster(clusterSelect);
             end
+            tmpClust = clustData;
+            tmpColor = clusterColor;
             plotHelper; %update plot
         end
     end
@@ -565,8 +565,7 @@ gf.Visible = 'on';
         clusterSelect2.String = uniqueLabel;
         clusterSelect.String = uniqueLabel;
         clusterSelect4.String = outputLabel;
-        clusterSelect5.String = uniqueLabel;   
-        clusterSelect5.Max = length(uniqueLabel);
+        clusterSelect5.String = uniqueLabel;        
         changeCluster(clusterSelect);
         plotHelper; %update plot
     end
@@ -592,8 +591,11 @@ gf.Visible = 'on';
             maxLabel = uniqueCluster(maxCIDX);
             minLabel = uniqueCluster(minCIDX);
             tmp = clustData == maxLabel; %find clusters to rename
+            Tmptmp = tmp;
             clustData(tmp) = minLabel; %rename to min cluster
-            clusterColor(tmp,:) = repmat(colorLabel(minCIDX,:),sum(tmp),1); %fix color of particles to match min cluster
+            clusterColor(tmp,:) = repmat(colorLabel(minLabel,:),sum(tmp),1); %fix color of particles to match min cluster
+            tmpClust = clustData;
+            tmpColor = clusterColor;
             averageClust(minCIDX,:) = nanmean(useMZdata(clustData == minLabel,:),1); %recalc average cluster spectrum
             %remove old cluster data
             averageClust(maxCIDX,:) = [];
@@ -618,7 +620,6 @@ gf.Visible = 'on';
             clusterSelect.String = uniqueLabel;
             clusterSelect4.String = outputLabel;
             clusterSelect5.String = uniqueLabel;
-            clusterSelect5.Max = length(uniqueLabel);
         end
     end
 

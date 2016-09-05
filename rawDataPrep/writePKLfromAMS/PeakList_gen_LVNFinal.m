@@ -130,7 +130,7 @@ divideData = nan(maxLength,length(data_pointer1)); %variable to hold divided dat
 maxData = zeros(length(lengthMZ),1); %variable to hold max of each mz division
 minData = zeros(length(lengthMZ),1); %variable to hold min of each mz division
 %divide data into mz divisions
-for i = 1:length(data_pointer1)
+for i = 1:length(data_pointer1)  
     divideData(1:lengthMZ(i),i) = inData(data_pointer1(i):data_pointer2(i));
     maxData(i) = max(inData(data_pointer1(i):data_pointer2(i)));
     minData(i) = min(inData(data_pointer1(i):data_pointer2(i)));
