@@ -8,7 +8,7 @@ function GUIfates(useMZdata,MZvector,partData,timeData,sizeData,clustData,clustR
 % in GUIfates.  The GUI sets up the following plots
 % 1)heatmap of all particle spectra (each row is a particle)
 % 2)scatter plot of all particle sizes
-% 3)scatter plot of all particle times
+% 3 )scatter plot of all particle times
 % 4)scatter plot of particle cluster relation statistics coded by cluster
 % identity using color
 %
@@ -167,16 +167,16 @@ set(gf,'units','normalized');
 set(gf,'position',[.01 .07 .75 .83]);
 
 %set up variables
-tmpIDX = [1:numPart]';
-origClustData = clustData;
-origClustRelation = clustRelation;
-logData = [];
-displaySubset = 0;
-currentAxis = 'linear';
-useIDX = tmpIDX;
-filterIDX = true(numPart,1);
+tmpIDX = [1:numPart]'; %index for spectra when "sorting" is applied
+origClustData = clustData; %save original data to be able to easily reset
+origClustRelation = clustRelation; %save original data to be able to easily reset
+logData = []; %variable to hold spectra data recalculated to appear on color log scale on imagemap  
+displaySubset = 0; %variable determines if all clusters (0) or only a subset (1) is to be displayed
+currentAxis = 'linear'; %variable determines whether to display spectra imagemap with linear or log scale color
+useIDX = tmpIDX; %final index used to determine order of spectra/which spectra to display taking into account all 'sorting', 'filtering', 'cluster selection', etc
+filterIDX = true(numPart,1); %variable to filter out spectra based on filter selections
 currentCluster = [];
-timeLimits = [min(timeData) max(timeData)];
+timeLimits = [min(timeData) max(timeData)]; 
 sizeLimits = [min(sizeData) max(sizeData)];
 clustRLimits = [min(clustRelation) max(clustRelation)];
 
@@ -223,9 +223,9 @@ end
 % create time plot 
 dx = axes('Parent',gf,'Units','normalized','Position',[0.05 0.17 0.073 0.5]);
 timePlot = scatter(timeData,tmpIDX,'.');
-datetick('x', 2);
 dx.XTick = [min(timeData):(max(timeData)-min(timeData))/3:max(timeData)];
 dx.XLim = [min(timeData) max(timeData)];
+datetick('x', 2,'keeplimits','keepticks');
 dx.XTickLabelRotation = 90;
 dx.XAxisLocation = 'top';
 set(dx,'YDir','reverse');
@@ -606,9 +606,7 @@ gf.Visible = 'on';
             clusterSelect.Value = minCIDX;
             clusterSelect3.Value = minCIDX;
             clusterSelect4.Value = minCIDX;
-            clusterSelect5.Value = 1;
             changeCluster(clusterSelect);
-            plotHelper; %update plots
             %update display
             uniqueLabel(maxCIDX) = [];
             outputLabel(maxCIDX) = [];
@@ -619,6 +617,12 @@ gf.Visible = 'on';
             clusterSelect4.String = outputLabel;
             clusterSelect5.String = uniqueLabel;
             clusterSelect5.Max = length(uniqueLabel);
+            if maxCIDX < clusterSelect5.Value
+                clusterSelect5.Value = clusterSelect5.Value-1;
+            elseif maxCIDX == clusterSelect5.Value
+                clusterSelect5.Value = minCIDX;
+            end
+            plotHelper; %update plots
         end
     end
 
