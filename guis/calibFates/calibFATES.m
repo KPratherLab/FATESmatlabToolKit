@@ -4,6 +4,10 @@ function varargout = calibFATES(varargin)
 % Can manually control calibration values, edit table of points, load and
 % save calibrations and other features.
 
+% Note if using raw data files that are not .ams or .amz files will have to
+% add your own code into loadSpectra to find the files (line 207) and 
+% read in the file (229) 
+
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
@@ -176,13 +180,33 @@ global polIdx polarity spectraIdx
     
 function loadSpectra % load spectrum from user input
     global filePointer defaultPath Data partSpeed partTime foldDir polarity NumPoints particleString filename % declare global variables
-    [filename, pathName,~] = uigetfile({'*.ams','Open AMS file';'*.amz','Open AMZ file'},'Open AMS file',defaultPath); % user selects folder to load
+    [filename, pathName,fileIDX] = uigetfile({'*.ams','Open AMS file';'*.amz','Open AMZ file'},'Open AMS file',defaultPath); % user selects folder to load
     if ~filename
-        error('select an AMS file to open') % error handling 
+        error('Not a valid file name. Select a file to open') % error handling 
     end
-    foldDir = dir([pathName '*.ams']); % select ams files to read in
-    if isempty(foldDir)
-        foldDir = dir([pathName '*.amz']); % if no ams are present, check for amz
+    if fileIDX == 1
+        foldDir = dir([pathName '*.ams']); % select ams files to read in
+    elseif fileIDX == 2
+        findAMZ = dir([pathName '*.amz']); % if no ams are present, check for amz
+        if ~isempty(findAMZ)
+            nameAMZ = {findAMZ.name}; %get pkl names
+            nameAMZ(ismember(nameAMZ,{'avg_pos.amz', 'avg_neg.amz'})) = [];
+            fullfileAMZ = fullfile(pathName,nameAMZ);
+            if iscell(fullfileAMZ)
+                fullfileAMS = cell(1,length(fullfileAMZ));
+                for i = 1:length(fullfileAMZ)
+                    tmp = unzip(fullfileAMZ{i},pathName); %uncompress amz file
+                    fullfileAMS{i} = tmp{1};
+                end
+            else
+                fullfileAMS = unzip(fullfileAMZ,pathName);
+            end
+        end
+        foldDir = dir([pathName '*.ams']); % select ams files to read in
+    elseif fileIDX == 3
+        %if not using ams or amz files as raw tof files input 
+        %add code here to create foldDir variable, which is a dir structure of raw data files in the
+        %current folder that you would want to look at with calibFates
     end
     filePointer = 1; % create filePointer for keeping track of spectra 
     defaultPath = pathName; % create variable to keep track of folder spectra come from
@@ -196,11 +220,24 @@ function loadSpectra % load spectrum from user input
 
     for i = 1:length(foldDir)
         %get_spectrumAMS
+        if fileIDX < 3
         [~,polarity{i},partSpeed{i},partTime{i},~,Data{i}] = get_spectrumAMS(fullfile(pathName,foldDir(i).name)); % read in spectra
         fullfile(pathName,foldDir(i).name);
         Data{i} = Data{i}(1:NumPoints); % cut Data down to number of points
         partTime{i} = partTime{i}+datenum(2000,0,0)-1/24; % correct particle time
+        else
+            %if not using ams or amz files as raw tof files input
+            %add code here to read raw data file (similar to get_spectrumAMS)
+            %and then add data to variables
+            %polarity (mass spec polarity), partSpeed (particle speed)
+            %partTime (particle time), and Data (raw tof data) as shown
+            %above
+        end
         particleString{i} = [pathName foldDir(i).name]; % find full file path of each particle for calibration tracking
+    end
+    
+    if fileIDX == 2
+        delete(fullfile(pathName,'*.ams')); %delete uncompressed ams file
     end
     
 function plotSpectra(handles,XMin,XMax) % plot current spectrum
@@ -222,41 +259,41 @@ function plotSpectra(handles,XMin,XMax) % plot current spectrum
     set(handles.textDateTime, 'String', datestr(partTime{filePointer})) % diplay particle time
     ylim([0 max(Data{filePointer}(XMin:XMax))*1.05]); % reset ylim
 
-function [HitParticleCounter,IonType,Speed,TimeStampData,LaserPower,Data] = get_spectrumAMS(MS_filename) % function to read in AMS files--from Jack Cahill
-% read in binary file
-    filestream = fopen(MS_filename);
-    Version = fread(filestream,1,'short');
-    NumPoints = fread(filestream,1,'short');
-    HitParticleCounter = fread(filestream,1,'int');
-    ScatDelay = fread(filestream,1,'short');
-    Speed = fread(filestream,1,'float');
-    Size = fread(filestream,1,'float');
-    IonType = fread(filestream,1,'short');
-    TimeStamp_type = fread(filestream,1,'short');
-    TimeStampData = fread(filestream,1,'double');  % good
-    TimeText = fread(filestream,20,'*char');
-
-    LaserPower = fread(filestream,1,'float');
-    ParticleHit = fread(filestream,1,'short');
-    FileType = fread(filestream,1,'short');
-
-    FileName = (fread(filestream,80,'*char'));
-
-% I assume all of these outputs are selectable from Tasware, like selecting
-% labels, re-caling and such
-    Cruft = fread(filestream,107,'*char');
-    TotalIntegral = fread(filestream,1,'int');
-    Baseline = fread(filestream,1,'short');
-    Calibrated = fread(filestream,1,'short');
-    CalibSlope = fread(filestream,1,'double');
-    CalibIntercept = fread(filestream,1,'double');
-    CalibData = fread(filestream,32,'double');
-    Labels = fread(filestream,1,'short');
-    Label = fread(filestream,480,'char'); % this value is actually a structure, 20 bytes of char, 4 bytes (float). Am not going to seperate
-    Cruft2 = fread(filestream,158, '*char');
-
-    Data = fread(filestream,15000,'short');  % DATA!!
-    fclose(filestream);
+% function [HitParticleCounter,IonType,Speed,TimeStampData,LaserPower,Data] = get_spectrumAMS(MS_filename) % function to read in AMS files--from Jack Cahill
+% % read in binary file
+%     filestream = fopen(MS_filename);
+%     Version = fread(filestream,1,'short');
+%     NumPoints = fread(filestream,1,'short');
+%     HitParticleCounter = fread(filestream,1,'int');
+%     ScatDelay = fread(filestream,1,'short');
+%     Speed = fread(filestream,1,'float');
+%     Size = fread(filestream,1,'float');
+%     IonType = fread(filestream,1,'short');
+%     TimeStamp_type = fread(filestream,1,'short');
+%     TimeStampData = fread(filestream,1,'double');  % good
+%     TimeText = fread(filestream,20,'*char');
+% 
+%     LaserPower = fread(filestream,1,'float');
+%     ParticleHit = fread(filestream,1,'short');
+%     FileType = fread(filestream,1,'short');
+% 
+%     FileName = (fread(filestream,80,'*char'));
+% 
+% % I assume all of these outputs are selectable from Tasware, like selecting
+% % labels, re-caling and such
+%     Cruft = fread(filestream,107,'*char');
+%     TotalIntegral = fread(filestream,1,'int');
+%     Baseline = fread(filestream,1,'short');
+%     Calibrated = fread(filestream,1,'short');
+%     CalibSlope = fread(filestream,1,'double');
+%     CalibIntercept = fread(filestream,1,'double');
+%     CalibData = fread(filestream,32,'double');
+%     Labels = fread(filestream,1,'short');
+%     Label = fread(filestream,480,'char'); % this value is actually a structure, 20 bytes of char, 4 bytes (float). Am not going to seperate
+%     Cruft2 = fread(filestream,158, '*char');
+% 
+%     Data = fread(filestream,15000,'short');  % DATA!!
+%     fclose(filestream);
     
 function [A,B] = massCal(X,Y,plotFlag) % perform mass calibration with data
 % massCal performs a calibration given two arrays of (1)
