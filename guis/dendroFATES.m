@@ -1,9 +1,9 @@
-function clickDendo_GUI(outWM,clustLabels,clustData,useMZdata,MZvector,partData,timeData,sizeData,clustRelation)
-% clickDendo_GUI sets up a dendogram using relations calculated from input
+function dendroFATES(outWM,clustLabels,clustData,useMZdata,MZvector,partData,timeData,sizeData,clustRelation)
+% dendroFATES sets up a dendogram using relations calculated from input
 % spectra.  The user can then interact with the GUI and select
 % nodes/branches to examine the particles in each cluster in GUIfates or output the particle ids to the
 % workspace. 
-% Call as clickDendo_GUI(outWM,clustLabels,clustData,useMZdata,MZvector,partData,timeData,sizeData,clustRelation)
+% Call as dendroFATES(outWM,clustLabels,clustData,useMZdata,MZvector,partData,timeData,sizeData,clustRelation)
 % 
 % INPUT
 % outWM= a JxK matrix containing K spectra. The spectra are used to group 
@@ -290,7 +290,7 @@ usecolors = tmp(4:10:end,:);
             checkXCoord = Xlines(:,1) < Xall(1) & Xlines(:,3) > Xall(1) & checkYCoord; %check for nearby node in x direction
             if any(checkXCoord) %nearby node found
                 clickcnt = clickcnt+1; %track clicks to set color for highlighter line
-                if clickcnt > size(usecolors,1); %reset color cycle
+                if clickcnt > size(usecolors,1) %reset color cycle
                     clickcnt = 1;
                 end
                 findRow = find(checkXCoord);

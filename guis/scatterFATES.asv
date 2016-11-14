@@ -1,5 +1,5 @@
 function scatterFATES(XVector,YVector,CVector,useMZdata,MZvector,partData,timeData,sizeData,clustRelation) 
-% PLOTCLICK sets up a gscatter figure of particles in FATES and allows the
+% scatterFATES sets up a gscatter figure of particles in FATES and allows the
 % user to select regions of particles and then inspect those regions of particles
 % using GUIfates which automatically makes a number of
 % plots (spectra, time, size, etc) pertaining to the selected particles.  
@@ -176,15 +176,19 @@ usefig.Visible = 'on';
         findSelect = listSelect2.Value; %get cluster to output
         nameVar = varName.String; %get name for variable in workspace
         if findSelect <= clickcount %for single cluster selection
-            outPID{1,1} = partData(selectIndex{findSelect},:);
-            outPID{2,1} = trackX(findSelect,:);
-            outPID{3,1} = trackY(findSelect,:);
+            getIDX  = selectIndex{findSelect};
+            outPID = cell
+            outPID{1,1} = partData(getIDX,:);
+            outPID{2,1} = CVector(getIDX,:);
+            outPID{3,1} = trackX(findSelect,:);
+            outPID{4,1} = trackY(findSelect,:);
         else %to output all clusters
             outPID = cell(3,clickcount);
             for i = 1:clickcount
                 outPID{1,i} = partData(selectIndex{i},:);
-                outPID{2,i} = trackX(i,:);
-                outPID{3,i} = trackY(i,:);
+                outPID{2,i} = CVector(selectIndex{i},:);
+                outPID{3,i} = trackX(i,:);
+                outPID{4,i} = trackY(i,:);
             end
         end
         assignin('base',nameVar,outPID);

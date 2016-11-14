@@ -195,6 +195,7 @@ function loadSpectra % load spectrum from user input
     end
 
     for i = 1:length(foldDir)
+        %get_spectrumAMS
         [~,polarity{i},partSpeed{i},partTime{i},~,Data{i}] = get_spectrumAMS(fullfile(pathName,foldDir(i).name)); % read in spectra
         fullfile(pathName,foldDir(i).name);
         Data{i} = Data{i}(1:NumPoints); % cut Data down to number of points
