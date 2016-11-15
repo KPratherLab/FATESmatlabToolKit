@@ -32,7 +32,7 @@ end
 function calibFATES_OpeningFcn(hObject, eventdata, handles, varargin) % initialization
 handles.output = hObject;
 guidata(hObject, handles);
-global posMZ negMZ negA negB posA posB NumPoints particleSaveString calibToggle % declare global variables
+global b posMZ negMZ negA negB posA posB NumPoints particleSaveString calibToggle axData ax% declare global variables
     fu = mfilename('fullpath');% find folder for spectrumViewer
     NumPoints = 15000; % constant for number of points in spectrum
     calibToggle = 0; % calibration toggle set to default
@@ -49,6 +49,10 @@ global posMZ negMZ negA negB posA posB NumPoints particleSaveString calibToggle 
     end
     loadSpectra % read spectra from user input
     getSpectraIdx(handles) % determine list of spectra to toggle from--depends upon positive and negative checkboxes
+    b = plot(posMZ,posMZ);
+    ax = gca;
+    ax.XLim = [1 NumPoints];
+    axData = localCreateViewInfoCOPY(ax);  
     plotSpectra(handles,1,NumPoints) % plot spectra from data loaded by user
 
 function varargout = calibFATES_OutputFcn(hObject, eventdata, handles) % required for GUI--put output here
@@ -100,7 +104,7 @@ global filePointer posMZ negMZ foldDir polarity spectraIdx % declare global vari
     
 function navigateRight(handles) % navigate to later spectra
     global filePointer posMZ negMZ foldDir polarity spectraIdx% declare global variables
-        if length(filePointer == 0)
+    if length(filePointer == 0)
         g = get(gca,'Title');
         for i = 1:length(foldDir)
             if strcmp(foldDir(i).name,g) == 1
@@ -179,7 +183,7 @@ global polIdx polarity spectraIdx
     end
     
 function loadSpectra % load spectrum from user input
-    global filePointer defaultPath Data partSpeed partTime foldDir polarity NumPoints particleString filename % declare global variables
+    global filePointer defaultPath Data partSpeed partTime foldDir polarity NumPoints particleString filename DataMax% declare global variables
     [filename, pathName,fileIDX] = uigetfile({'*.ams','Open AMS file';'*.amz','Open AMZ file'},'Open AMS file',defaultPath); % user selects folder to load
     if ~filename
         error('Not a valid file name. Select a file to open') % error handling 
@@ -235,21 +239,32 @@ function loadSpectra % load spectrum from user input
         end
         particleString{i} = [pathName foldDir(i).name]; % find full file path of each particle for calibration tracking
     end
-    
+    DataMax = cellfun(@max,Data);
     if fileIDX == 2
         delete(fullfile(pathName,'*.ams')); %delete uncompressed ams file
     end
     
 function plotSpectra(handles,XMin,XMax) % plot current spectrum
-    global filePointer polarity posMZ negMZ posA posB negA negB Data foldDir partSpeed partTime
+    global filePointer polarity posMZ negMZ posA posB negA negB Data foldDir partSpeed partTime b axData ax DataMax NumPoints
     if polarity{filePointer} == 0 % load parameters for positive particles
-        plot(posMZ,Data{filePointer})
-        xlim([posMZ(XMin) posMZ(XMax)]) % set x limit
+        b.XData = posMZ;
+        b.YData = Data{filePointer};
+        axData.YLim = [0 DataMax(filePointer)];
+        axData.XLim = [0 max(posMZ)];
+        setappdata(ax,'matlab_graphics_resetplotview',axData);
+%         c.YLim = [0 DataMax(filePointer)];
+%         xlim([posMZ(XMin) posMZ(XMax)]) % set x limit
         set(handles.textA, 'String', num2str(posA),'FontSize',10); % display A
         set(handles.textB, 'String', num2str(posB),'FontSize',10); % display B
     else % load parameters for negative particles
-        plot(negMZ,Data{filePointer})
-        xlim([negMZ(XMin) negMZ(XMax)]) % set x limit
+        b.XData = negMZ;
+        b.YData = Data{filePointer};
+        axData.YLim = [0 DataMax(filePointer)];
+        axData.XLim = [0 max(negMZ)];
+        setappdata(ax,'matlab_graphics_resetplotview',axData);
+%         c.YLim = [0 DataMax(filePointer)];
+%         plot(negMZ,Data{filePointer})
+%         xlim([negMZ(XMin) negMZ(XMax)]) % set x limit
         set(handles.textA, 'String', num2str(negA),'FontSize',10); % display A
         set(handles.textB, 'String', num2str(negB),'FontSize',10); % display B
     end
@@ -386,9 +401,9 @@ function finalCalibrationButton_Callback(hObject, eventdata, handles) % final ca
     set(handles.textB, 'String', num2str(B),'FontSize',10); % display new B
     
 function toggleCalibrationButton_Callback(hObject, eventdata, handles) % button to toggle calibration on/off--go from uncalibrated to calibrated
-global calibToggle NumPoints posA posB negA negB posMZ negMZ filePointer polarity
-    h = get(gca);
-    tmp = h.XLim;
+global calibToggle NumPoints posA posB negA negB posMZ negMZ filePointer polarity ax
+%     h = get(gca);
+    tmp = ax.XLim;
     if polarity{filePointer} == 0 % positive
         tmpMin = abs(posMZ-tmp(1)); % find closest value for min
         tmpMax = abs(posMZ-tmp(2)); % find closest value for max
@@ -454,7 +469,7 @@ clear -global filePointer defaultPath Data partSpeed partTime posMZ negMZ foldDi
 %--------------------------Menu and tooolbar button functions---------------------------
 function fileMenu_Callback(hObject, eventdata, handles) % create menu->file
 
-function viewMenu_Callback(hObject, eventdata, handles) % create menu->view
+% function viewMenu_Callback(hObject, eventdata, handles) % create menu->view
 
 function calibrationMenu_Callback(hObject, eventdata, handles) % create menu->calibration    
 
@@ -467,24 +482,24 @@ function exitFigure_Callback(hObject, eventdata, handles) % quit program and cle
 clear -global filePointer defaultPath Data partSpeed partTime posMZ negMZ foldDir negA negB posA posB polarity NumPoints  particleString particleSaveString exportPath % clear global variables
     close(gcf) % close figure
     
-function resetView_Callback(hObject, eventdata, handles) % reset view of plot normal
-    global filePointer Data posMZ negMZ polarity NumPoints % declare global variables
-    if polarity{filePointer} == 0 % determine if particle is positive or negative
-        xlim([1 posMZ(NumPoints)]); % reset to posMZ upper limit
-    else
-        xlim([1 negMZ(NumPoints)]); % reset to negMZ upper limit
-    end
-    ylim([0 max(Data{filePointer})*1.05]); % reset y-axis
-
-function setX_Callback(hObject, eventdata, handles) % set X axis limts manually
-    temp_min = inputdlg('Enter minimum X-value'); % min value input
-    temp_max = inputdlg('Enter maximum X-value'); % max value input 
-    xlim([str2num(char(temp_min)) str2num(char(temp_max))]) % set limits from user inputs
-
-function setY_Callback(hObject, eventdata, handles) % set Y axis limts manually
-    temp_min = inputdlg('Enter minimum Y-value'); % min value input
-    temp_max = inputdlg('Enter maximum Y-value'); % max value input
-    ylim([str2num(char(temp_min)) str2num(char(temp_max))]) % set limits from user inputs
+% function resetView_Callback(hObject, eventdata, handles) % reset view of plot normal
+%     global filePointer Data posMZ negMZ polarity NumPoints % declare global variables
+%     if polarity{filePointer} == 0 % determine if particle is positive or negative
+%         xlim([1 posMZ(NumPoints)]); % reset to posMZ upper limit
+%     else
+%         xlim([1 negMZ(NumPoints)]); % reset to negMZ upper limit
+%     end
+%     ylim([0 max(Data{filePointer})*1.05]); % reset y-axis
+% 
+% function setX_Callback(hObject, eventdata, handles) % set X axis limts manually
+%     temp_min = inputdlg('Enter minimum X-value'); % min value input
+%     temp_max = inputdlg('Enter maximum X-value'); % max value input 
+%     xlim([str2num(char(temp_min)) str2num(char(temp_max))]) % set limits from user inputs
+% 
+% function setY_Callback(hObject, eventdata, handles) % set Y axis limts manually
+%     temp_min = inputdlg('Enter minimum Y-value'); % min value input
+%     temp_max = inputdlg('Enter maximum Y-value'); % max value input
+%     ylim([str2num(char(temp_min)) str2num(char(temp_max))]) % set limits from user inputs
 
 function setCalibrationValues_Callback(hObject, eventdata, handles) % set A and B calibration values manually
 global filePointer posMZ negMZ negA negB posA posB polarity NumPoints calibToggle% declare global variables
