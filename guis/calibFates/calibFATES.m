@@ -252,8 +252,8 @@ function plotSpectra(handles,XMin,XMax) % plot current spectrum
         axData.YLim = [0 DataMax(filePointer)];
         axData.XLim = [0 max(posMZ)];
         setappdata(ax,'matlab_graphics_resetplotview',axData);
-%         c.YLim = [0 DataMax(filePointer)];
-%         xlim([posMZ(XMin) posMZ(XMax)]) % set x limit
+        %         c.YLim = [0 DataMax(filePointer)];
+        ax.XLim = [posMZ(XMin) posMZ(XMax)]; % set x limit
         set(handles.textA, 'String', num2str(posA),'FontSize',10); % display A
         set(handles.textB, 'String', num2str(posB),'FontSize',10); % display B
     else % load parameters for negative particles
@@ -265,6 +265,7 @@ function plotSpectra(handles,XMin,XMax) % plot current spectrum
 %         c.YLim = [0 DataMax(filePointer)];
 %         plot(negMZ,Data{filePointer})
 %         xlim([negMZ(XMin) negMZ(XMax)]) % set x limit
+        ax.XLim = [negMZ(XMin) negMZ(XMax)]; % set x limit
         set(handles.textA, 'String', num2str(negA),'FontSize',10); % display A
         set(handles.textB, 'String', num2str(negB),'FontSize',10); % display B
     end
@@ -272,7 +273,7 @@ function plotSpectra(handles,XMin,XMax) % plot current spectrum
     title(foldDir(filePointer).name); % title
     set(handles.textSpeed, 'String', num2str(partSpeed{filePointer})) % display particle speed
     set(handles.textDateTime, 'String', datestr(partTime{filePointer})) % diplay particle time
-    ylim([0 max(Data{filePointer}(XMin:XMax))*1.05]); % reset ylim
+    ax.YLim = ([min(Data{filePointer}(XMin:XMax))*0.9 max(Data{filePointer}(XMin:XMax))*1.05]); % reset ylim
 
 % function [HitParticleCounter,IonType,Speed,TimeStampData,LaserPower,Data] = get_spectrumAMS(MS_filename) % function to read in AMS files--from Jack Cahill
 % % read in binary file
@@ -469,7 +470,7 @@ clear -global filePointer defaultPath Data partSpeed partTime posMZ negMZ foldDi
 %--------------------------Menu and tooolbar button functions---------------------------
 function fileMenu_Callback(hObject, eventdata, handles) % create menu->file
 
-% function viewMenu_Callback(hObject, eventdata, handles) % create menu->view
+function viewMenu_Callback(hObject, eventdata, handles) % create menu->view
 
 function calibrationMenu_Callback(hObject, eventdata, handles) % create menu->calibration    
 
@@ -482,24 +483,26 @@ function exitFigure_Callback(hObject, eventdata, handles) % quit program and cle
 clear -global filePointer defaultPath Data partSpeed partTime posMZ negMZ foldDir negA negB posA posB polarity NumPoints  particleString particleSaveString exportPath % clear global variables
     close(gcf) % close figure
     
-% function resetView_Callback(hObject, eventdata, handles) % reset view of plot normal
-%     global filePointer Data posMZ negMZ polarity NumPoints % declare global variables
-%     if polarity{filePointer} == 0 % determine if particle is positive or negative
-%         xlim([1 posMZ(NumPoints)]); % reset to posMZ upper limit
-%     else
-%         xlim([1 negMZ(NumPoints)]); % reset to negMZ upper limit
-%     end
-%     ylim([0 max(Data{filePointer})*1.05]); % reset y-axis
-% 
-% function setX_Callback(hObject, eventdata, handles) % set X axis limts manually
-%     temp_min = inputdlg('Enter minimum X-value'); % min value input
-%     temp_max = inputdlg('Enter maximum X-value'); % max value input 
-%     xlim([str2num(char(temp_min)) str2num(char(temp_max))]) % set limits from user inputs
-% 
-% function setY_Callback(hObject, eventdata, handles) % set Y axis limts manually
-%     temp_min = inputdlg('Enter minimum Y-value'); % min value input
-%     temp_max = inputdlg('Enter maximum Y-value'); % max value input
-%     ylim([str2num(char(temp_min)) str2num(char(temp_max))]) % set limits from user inputs
+function resetView_Callback(hObject, eventdata, handles) % reset view of plot normal
+    global filePointer Data posMZ negMZ polarity NumPoints DataMax % declare global variables
+    if polarity{filePointer} == 0 % determine if particle is positive or negative
+        xlim([1 posMZ(NumPoints)]); % reset to posMZ upper limit
+    else
+        xlim([1 negMZ(NumPoints)]); % reset to negMZ upper limit
+    end
+    ylim([0 DataMax(filePointer)*1.05]); % reset y-axis
+
+function setX_Callback(hObject, eventdata, handles) % set X axis limts manually
+    global ax
+    temp_min = inputdlg('Enter minimum X-value'); % min value input
+    temp_max = inputdlg('Enter maximum X-value'); % max value input 
+    ax.XLim = ([str2num(char(temp_min)) str2num(char(temp_max))]); % set limits from user inputs
+
+function setY_Callback(hObject, eventdata, handles) % set Y axis limts manually
+    global ax
+    temp_min = inputdlg('Enter minimum Y-value'); % min value input
+    temp_max = inputdlg('Enter maximum Y-value'); % max value input
+    ax.YLim = ([str2num(char(temp_min)) str2num(char(temp_max))]); % set limits from user inputs
 
 function setCalibrationValues_Callback(hObject, eventdata, handles) % set A and B calibration values manually
 global filePointer posMZ negMZ negA negB posA posB polarity NumPoints calibToggle% declare global variables
