@@ -61,7 +61,7 @@ function [M, TF] = padcat(varargin)
 % Acknowledgements:
 % Inspired by padadd.m (feb 2000) Fex ID 209 by Dave Johnson
 
-error(nargchk(1,Inf,nargin)) ;
+narginchk(1,Inf);
 
 % check the inputs
 SZ = cellfun(@size,varargin,'UniformOutput',false) ; % sizes

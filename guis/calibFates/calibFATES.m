@@ -5,8 +5,7 @@ function varargout = calibFATES(varargin)
 % save calibrations and other features.
 
 % Note if using raw data files that are not .ams or .amz files will have to
-% add your own code into loadSpectra to find the files (line 207) and 
-% read in the file (229) 
+% add your own code into loadSpectra to find and read in the files
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;

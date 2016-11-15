@@ -14,7 +14,7 @@ function [calParams, speedModes] = pslCal(pslTime, pslVels, pslSizes, N, bins)
 % bins indicates the number or bins (default is 100)
 % note depending on the width of the range given by each row may
 % want to adjust the bin value (wider range, more bins)
-% calParams are the new calibration parameters
+% calParams are the new calibratiofn parameters
 % speedModes is the velocity of each psl size
 
 % Modified by Alberto Cazorla. October 4, 2010

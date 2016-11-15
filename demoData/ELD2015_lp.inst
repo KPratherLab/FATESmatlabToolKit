@@ -1,0 +1,24 @@
+%*.inst - instrument data file for Elwood laser power experiments fall 2015
+% using size cal parameters from psl calibration done on 8/14/15 
+
+InstCode = ELD
+InstName = Elwood
+InstDesc = Eld 
+ExpName = ELD_lp2015
+ExpDesc = laser power experiments with atomized and bubbled control solutions and seawater
+DaCalibFunction = da_noz
+% Elwood calibration from Hiroshi with nitrogen, see Access NOZ 
+%FORM, use for the velocity range 288 - 476 m/s, corresponds to 
+%size range 200 - 2500 nanometers. Format of Calibration Function: 
+%"Size = C1 + C2*V + C3*V^2 + C4*V^3 + C5*V^4 + C6*V^5 + C7*EXP(C8*V)" 
+% [C1 C2 C3 C4 C5 C6 C7 C8 V(min) V(max)]in um
+DaCalibParam = [15.1007862885584  -0.0686798458530109    9.73833334372344e-05  -3.91005477000333e-08   0   0   0   0  259.760235755403  491.740581216779]
+BusyTimeFunction = busy_scale
+% for long file names determined by Davio - Bst Didn't Chnge for this.  Will never use %this anyways
+% The stuff below is inaccurate, but not used in our analysis to my knowledge - AA
+BusyTimeParam = [0.1 0.45 0.000244]
+SampleFlow = 1.6E-6
+Minheight = 5
+MinArea = 10
+PreprocDate = 04-Dec-2009
+PreprocDesc = Tasware Version 4.02 called TaswareWDRAutoCalibFix with the autocalibrator
