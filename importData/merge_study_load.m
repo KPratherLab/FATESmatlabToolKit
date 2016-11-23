@@ -28,7 +28,7 @@ function merge_study_load
 %          That program will renumber inst2 ids to
 %              start after the last inst1 ids
 %    c)merge data from the same instumnets in study1 and study2
-%          merge_study_part({1,2,4},{1,6,3})
+%          merge_study_part((1,2,4),(1,6,3))
 %             This means merge Study1,inst id 1 with Study2,inst id 1;
 %                              Study1,inst id 2 with Study2,inst id 6;
 %                              Study1,inst id 4 with Study2,inst id 3;
@@ -113,8 +113,8 @@ s = strrep(input('Processed data directory?  ','s'),'\',filesep2use);
 if ~isempty(s)
     STUDY3.ProcDir = s;
 end
-if ~exist(STUDY3.ProcDir,'dir');
-    if ~mkdir(STUDY3.ProcDir);
+if ~exist(STUDY3.ProcDir,'dir')
+    if ~mkdir(STUDY3.ProcDir)
         error('Cannot create directory %s',STUDY.ProcDir);
     end
 end
@@ -259,11 +259,14 @@ else %pad then combine if not equal
     PARTdataMat((num1+1):end,PDATAidx{2,2}) = PARTdataMat2(:,PDATAidx{2,1});
     
     %load in missed particle data and combine with padding
-    [~,PARTdataMissedTMP] = load_missed(STUDY1.PARTidMissed_filename, STUDY1.PARTdataMissed_filename);
+    STUDY = STUDY1;
+    [~,PARTdataMissedTMP] = load_missed('notpath', STUDY1.PARTdataMissed_filename);
     num1m = size(PARTdataMissedTMP,1);
     PARTdataMissed = single(nan(num1m,numFlds));
     PARTdataMissed(:,PDATAidx{1,2}) = PARTdataMissedTMP(:,PDATAidx{1,1});
+    STUDY = STUDY2;
     [~,PARTdataMissedTMP] = load_missed('notpath', STUDY2.PARTdataMissed_filename);
+    STUDY = [];
     num2m = size(PARTdataMissedTMP,1);
     PARTdataMissed((num1m+1):(num1m+num2m),PDATAidx{2,2}) = PARTdataMissedTMP(:,PDATAidx{2,1});
     %write to external file

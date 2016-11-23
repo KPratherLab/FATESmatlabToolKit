@@ -112,28 +112,28 @@ if ~exist('MaxIteration', 'var')
    MaxIteration = 20;
 end
 
-if ~exist('Polarity', 'var')
+if ~exist('Polarity', 'var');
    Polarity = 2;
-elseif Polarity > 2 | Polarity < 0 | ~isreal(Polarity)
+elseif Polarity > 2 | Polarity < 0 | ~isreal(Polarity);
       error('Polarity must be a number between 0 and 2.  See help file');
 end
 
 %%
 %get area table for input PID
 switch Polarity
-    case 0
+    case 0;
         if ~exist('NegArea', 'var')
             [AreaMatrix] = get_int_spectrum_SUM(inPartID,MaxMass,'Area',0); 
             fprintf('INFO, run art2a, getting int spectrum for Neg Area');
         end
        
-    case 1
+    case 1;
         if ~exist('PosArea', 'var')
             [~,AreaMatrix] = get_int_spectrum_SUM(inPartID,MaxMass,'Area',1);
             fprintf('INFO, run art2a, getting int spectrum for Pos Area');
         end
         
-    case 2
+    case 2;
         if (~exist('NegArea', 'var') || ~exist('PosArea','var'))
             [NegArea, PosArea] = get_int_spectrum_SUM(inPartID,MaxMass,'Area',2);
             fprintf('INFO, run art2a, getting int spectrum for Neg and Pos Area');
@@ -181,25 +181,25 @@ NumPID = size(inPartID,1);
     WeightMatrix     = AreaMatrix(:,RandomOrder(1)); %for first iteration create a dummy weight matrix with first particle
 
 %loop through algorithm
-while EndTest == 0
+while EndTest == 0;
     
     %PFR track WM changes
     prevWM=WeightMatrix;
     
     %cluster particles
-    for I = 1:NumPID
-        %         if mod(I,10000) == 0
-        %             I;
-        %         end
-        [ClosestProximity(I), ClosestNeuron(I)] = max(AreaMatrix(:,RandomOrder(I))'*WeightMatrix);
-        if ClosestProximity(I) >= VigilanceFactor %if particle matches a current cluster
-            temp = WeightMatrix(:,ClosestNeuron(I))*adjRate + (AreaMatrix(:,RandomOrder(I)) * LearningRate); %add to cluster and alter WM
-            WeightMatrix(:,ClosestNeuron(I)) = temp/norm(temp);
-        else %if particle does not match any clusters
-            NumClusters = NumClusters+1;
-            ClosestNeuron(I) = NumClusters;
-            WeightMatrix = [WeightMatrix AreaMatrix(:,RandomOrder(I))]; %create new cluster
+    for I = 1:NumPID 
+        if mod(I,10000) == 0
+            I
         end
+            [ClosestProximity(I), ClosestNeuron(I)] = max(AreaMatrix(:,RandomOrder(I))'*WeightMatrix);
+            if ClosestProximity(I) >= VigilanceFactor; %if particle matches a current cluster
+                    temp = WeightMatrix(:,ClosestNeuron(I))*adjRate + (AreaMatrix(:,RandomOrder(I)) * LearningRate); %add to cluster and alter WM
+                    WeightMatrix(:,ClosestNeuron(I)) = temp/norm(temp);
+            else %if particle does not match any clusters
+                NumClusters = NumClusters+1; 
+                ClosestNeuron(I) = NumClusters;
+                WeightMatrix = [WeightMatrix AreaMatrix(:,RandomOrder(I))]; %create new cluster
+            end
     end
     
     %track WM
@@ -238,7 +238,7 @@ while EndTest == 0
     end
     
     Iterator = Iterator + 1; %if reached MaxIteration end
-    if Iterator > MaxIteration
+    if Iterator > MaxIteration;
         EndTest = 1;
     end
     

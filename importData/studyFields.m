@@ -164,6 +164,8 @@ numFldsPARTdata = length(partdataNAME); %DON'T DELETE
 partdataTABLE = cell(length(partdataNAME),1);
 partdataTABLE(1:end) = {'PARTFlds'};
 partdataDESC = cell(length(partdataNAME),1);
+STUDY.NumPartCols = numFldsPARTdata; %DON'T DELETE, this is to track the number of columns written into missed data files
+
 %the allDESC variable has to be manually altered if you change the fields
 %this variable is just a reference for future users so if you don't change
 %it, the study will still load properly but the record of what each field
