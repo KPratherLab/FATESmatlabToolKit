@@ -5,7 +5,7 @@ function studyFields
 %to what fields can be altered/removed and what must remain for fates to
 %continue functioning.
 
-global PEAKFlds PARTidFlds PARTdataFlds PEAK STUDY INST partdataNAME numFldsPARTid numFldsPARTdata peakFldsNAME numFldsPEAKFlds
+global PEAKFlds PARTidFlds PARTdataFlds PEAK STUDY INST partdataNAME numFldsPARTid numFldsPARTdata peakFldsNAME numFldsPEAKFlds PARTmisseddataFlds
 
 %set up INST flds
 % NOTES ON FLEXIBILITY
@@ -157,6 +157,7 @@ PARTdataFlds.DA = 3; %vacuum aerodynamic diameter, calculated using provided cal
 PARTdataFlds.HIT = 4; %suggest do not remove, >0 if hit. 0= not hit, if .pol file exists 1 = both pos and neg spectra generated, 2 = pos spectra only, 3 = neg spectra only. If no pol file 1 = any spectra generated ('hit particle')
 PARTdataFlds.RING = 5; %>0 if ring detected in spectra. This is read in from .pol file if it exists.
 PARTdataFlds.POSIT = 6; %position of particle in folder, taken from number of particles in .set and .sem files
+PARTmisseddataFlds = PARTdataFlds;
 
 %set up variables to save data definitions file
 partdataNAME = fieldnames(PARTdataFlds); %DON'T DELETE
@@ -164,7 +165,7 @@ numFldsPARTdata = length(partdataNAME); %DON'T DELETE
 partdataTABLE = cell(length(partdataNAME),1);
 partdataTABLE(1:end) = {'PARTFlds'};
 partdataDESC = cell(length(partdataNAME),1);
-STUDY.NumPartCols = numFldsPARTdata; %DON'T DELETE, this is to track the number of columns written into missed data files
+% STUDY.NumPartCols = numFldsPARTdata; %DON'T DELETE, this is to track the number of columns written into missed data files
 
 %the allDESC variable has to be manually altered if you change the fields
 %this variable is just a reference for future users so if you don't change

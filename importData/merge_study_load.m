@@ -38,7 +38,7 @@ function merge_study_load
 % added flexibilty if PART and INST data structures don't match
 % Camille Sultana 2016
 %
-global FATES STUDY runbatch  STUDY1 STUDY2 STUDY3 PARTdataMat PARTidMat PARTidMissed INST INST1 INST2 INST3 PEAK1 PEAK2 PEAK3 PEAK PARTidMat2 PARTidFlds PARTidFlds1 PARTidFlds2 PARTdataFlds  PEAKFlds PEAKFlds1 PEAKFlds2 num1 num2;
+global FATES STUDY runbatch  STUDY1 STUDY2 STUDY3 PARTdataMat PARTidMat PARTidMissed INST INST1 INST2 INST3 PEAK1 PEAK2 PEAK3 PEAK PARTidMat2 PARTidFlds PARTidFlds1 PARTidFlds2 PARTdataFlds  PEAKFlds PEAKFlds1 PEAKFlds2 num1 num2 PARTmisseddataFlds;
 
 % -------------------------------------------------
 % PFR  for batch exec use a 'runbatch' flag = 1 in startup
@@ -145,7 +145,8 @@ if exist([StudyName1_Full '.mat'],'file')
     PARTdataFlds1 = PARTdataFlds; 
     PARTidFlds1 = PARTidFlds; 
     PEAK1     = PEAK; 
-    PEAKFlds1 = PEAKFlds;        
+    PEAKFlds1 = PEAKFlds;      
+    PARTmisseddataFlds1 = PARTmisseddataFlds;
 else error('ERROR, merge study, study1 name not found %s \n,StudyName1');
 end;
 
@@ -161,6 +162,7 @@ if exist([StudyName2_Full '.mat'],'file')
     PARTidFlds2 = PARTidFlds; PARTidFlds = [];
     PEAK2     = PEAK; PEAK = [];
     PEAKFlds2 = PEAKFlds; PEAKFlds = [];
+    PARTmisseddataFlds2 = PARTmisseddataFlds; PARTmisseddataFlds = [];
 else error('ERROR, merge study, study2 name not found %s \n',StudyName2);
 end;
 
@@ -216,21 +218,15 @@ if isequal(PARTdataFlds1,PARTdataFlds2) %check to see if fields are equal
     %update hit particle
     PARTdataMat = [PARTdataMat1; PARTdataMat2]; %combine if equal
     PARTdataFlds = PARTdataFlds1;
-    %update missed particle data
-    %note this is probably not the fastest way
-    copyfile(STUDY1.PARTdataMissed_filename, STUDY3.PARTdataMissed_filename);
-    [~,PARTdataMissedTMP] = load_missed('notpath', STUDY2.PARTdataMissed_filename);
-    fdataid = fopen(STUDY3.PARTdataMissed_filename,'a');
-    fwrite(fdataid,PARTdataMissedTMP','single');
-    fclose(fdataid);    
-    clear PARTdataMissedTMP
 else %pad then combine if not equal
-    fprintf('%s\n%s\n','Warning: PARTdataFlds between the two studies do not match.',...
+    warning('%s\n%s\n','Warning: PARTdataFlds between the two studies do not match.',...
         'The new PARTdataMat matrix will be padded or reorganized to account for this mismatch');
-    fprintf('%s\n%s\n','Warning: The datadef file for STUDY 3 is simply a copy of STUDY 1.',...
+    warning('%s\n%s\n','Warning: The datadef file for STUDY 3 is simply a copy of STUDY 1.',...
         'User will need to manually alter STUDY3 datadef file for it to accurately detail database structure');    
     %compare fields and get locations for placing data
     PDATAidx = cell(2,2);
+    origFlds1name = fieldnames(PARTdataFlds1);
+    origFlds2name = fieldnames(PARTdataFlds2);    
     PARTdataFlds1name = lower(fieldnames(PARTdataFlds1));
     PARTdataFlds2name = lower(fieldnames(PARTdataFlds2));
     PARTdataFlds3name = union(PARTdataFlds1name, PARTdataFlds2name,'stable');
@@ -238,16 +234,18 @@ else %pad then combine if not equal
     [~,PDATAidx{2,2}] = ismember(PARTdataFlds2name, PARTdataFlds3name);
     PDATAidx{1,2}(PDATAidx{1,2} == 0) = [];
     PDATAidx{2,2}(PDATAidx{2,2} == 0) = [];
+    PDATAidx{1,1} = zeros(1,length(origFlds1name));
+    PDATAidx{2,1} = zeros(1,length(origFlds2name));    
     for i = 1:length(PARTdataFlds1name)
-        PDATAidx{1,1} = PARTdataFlds1.(PARTdataFlds1name{i});
+        PDATAidx{1,1}(i) = PARTdataFlds1.(origFlds1name{i});
     end
     for i = 1:length(PARTdataFlds2name)
-        PDATAidx{2,1} = PARTdataFlds2.(PARTdataFlds2name{i});
+        PDATAidx{2,1}(i) = PARTdataFlds2.(origFlds2name{i});
     end
     
     %create PARTdataFlds structure for new study
         %reset PARTdataFlds to uppercase or original
-    PARTdataFlds3name([1:length(PARTdataFlds1name)]) = PARTdataFlds1name;
+    PARTdataFlds3name([1:length(PARTdataFlds1name)]) = origFlds1name;
     for i = 1:length(PARTdataFlds3name)
         PARTdataFlds.(PARTdataFlds3name{i}) = i;
     end
@@ -257,25 +255,70 @@ else %pad then combine if not equal
     PARTdataMat = single(nan(num1+num2,numFlds));
     PARTdataMat(1:num1,PDATAidx{1,2}) = PARTdataMat1(:,PDATAidx{1,1});
     PARTdataMat((num1+1):end,PDATAidx{2,2}) = PARTdataMat2(:,PDATAidx{2,1});
+end
+clear PARTdataMat1 PARTdataMat2 PARTdataFlds1 PARTdataFlds2
+
+%update missed particle data
+if isequal(PARTmisseddataFlds1,PARTmisseddataFlds2) %check to see if fields are equal   
+    %note this is probably not the fastest way
+    copyfile(STUDY1.PARTdataMissed_filename, STUDY3.PARTdataMissed_filename);
+    PARTmisseddataFlds = PARTmisseddataFlds2;
+    [~,PARTdataMissedTMP] = load_missed('notpath', STUDY2.PARTdataMissed_filename);
+    fdataid = fopen(STUDY3.PARTdataMissed_filename,'a');
+    fwrite(fdataid,PARTdataMissedTMP','single');
+    fclose(fdataid);
+    clear PARTdataMissedTMP
+else
+    warning('%s\n%s\n','Warning: PARTmisseddataFlds between the two studies do not match.',...
+        'The new missed PARTdataMat matrix will be padded or reorganized to account for this mismatch');
+    warning('%s\n%s\n','Warning: The datadef file for STUDY 3 is simply a copy of STUDY 1.',...
+        'User will need to manually alter STUDY3 datadef file for it to accurately detail database structure');
+    %compare fields and get locations for placing data
+    PDATAidx = cell(2,2);
+    origFlds1name = fieldnames(PARTmisseddataFlds1);
+    origFlds2name = fieldnames(PARTmisseddataFlds2);    
+    PARTdataFlds1name = lower(fieldnames(PARTmisseddataFlds1));
+    PARTdataFlds2name = lower(fieldnames(PARTmisseddataFlds2));
+    PARTdataFlds3name = union(PARTdataFlds1name, PARTdataFlds2name,'stable');
+    [~,PDATAidx{1,2}] = ismember(PARTdataFlds1name, PARTdataFlds3name);
+    [~,PDATAidx{2,2}] = ismember(PARTdataFlds2name, PARTdataFlds3name);
+    PDATAidx{1,2}(PDATAidx{1,2} == 0) = [];
+    PDATAidx{2,2}(PDATAidx{2,2} == 0) = [];
+    PDATAidx{1,1} = zeros(1,length(origFlds1name));
+    PDATAidx{2,1} = zeros(1,length(origFlds2name));    
+    for i = 1:length(PARTdataFlds1name)
+        PDATAidx{1,1}(i) = PARTdataFlds1.(origFlds1name{i});
+    end
+    for i = 1:length(PARTdataFlds2name)
+        PDATAidx{2,1}(i) = PARTdataFlds2.(origFlds2name{i});
+    end
     
     %load in missed particle data and combine with padding
-    STUDY = STUDY1;
+    numFlds = length(PARTdataFlds3name);
+    PARTmisseddataFlds = PARTmisseddataFlds1;
     [~,PARTdataMissedTMP] = load_missed('notpath', STUDY1.PARTdataMissed_filename);
     num1m = size(PARTdataMissedTMP,1);
     PARTdataMissed = single(nan(num1m,numFlds));
     PARTdataMissed(:,PDATAidx{1,2}) = PARTdataMissedTMP(:,PDATAidx{1,1});
-    STUDY = STUDY2;
+    PARTmisseddataFlds = PARTmisseddataFlds2;
     [~,PARTdataMissedTMP] = load_missed('notpath', STUDY2.PARTdataMissed_filename);
-    STUDY = [];
+    PARTmisseddataFlds = [];
     num2m = size(PARTdataMissedTMP,1);
     PARTdataMissed((num1m+1):(num1m+num2m),PDATAidx{2,2}) = PARTdataMissedTMP(:,PDATAidx{2,1});
+    
+    %create PARTdataFlds structure for new study
+    %reset PARTdataFlds to uppercase or original
+    PARTdataFlds3name([1:length(PARTdataFlds1name)]) = origFlds1name;
+    for i = 1:length(PARTdataFlds3name)
+        PARTmisseddataFlds.(PARTdataFlds3name{i}) = i;
+    end
+    
     %write to external file
     fdataid = fopen(STUDY3.PARTdataMissed_filename,'w');
     fwrite(fdataid,PARTdataMissed','single');
     fclose(fdataid);
-    clear PARTdataMissed PARTdataMissedTMP
+    clear PARTdataMissed PARTdataMissedTMP PARTmisseddataFlds2 PARTmisseddataFlds1
 end
-clear PARTdataMat1 PARTdataMat2 PARTdataFlds1 PARTdataFlds2
 
 %check PARTidMat structure
 if ~isequal(PARTidFlds1,PARTidFlds2)

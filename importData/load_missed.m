@@ -14,7 +14,7 @@ function [PARTidMissed, PARTdataMissed] = load_missed(PidMissedFile, PdataMissed
 %PARTdataMissed: particle data matrix following same format as PARTdataMat,
 %each row corresponds to data for a single particle
 
-global PARTidMat PARTdataMat STUDY
+global PARTidMat PARTmisseddataFlds
 PARTidMissed = [];
 PARTdataMissed = [];
 
@@ -38,8 +38,8 @@ if tmp ~= -1
     fclose(tmp);
     
     %shape matrix
-    numRows = length(PARTdataMissed)/size(PARTdataMat,2);
-    numCols = STUDY.NumPartCols;
+    numCols = length(fieldnames(PARTmisseddataFlds));
+    numRows = length(PARTdataMissed)/numCols;
     PARTdataMissed = reshape(PARTdataMissed, [numCols numRows]);
     PARTdataMissed = PARTdataMissed';
 end

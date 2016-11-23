@@ -77,7 +77,7 @@
 
 clear all
 
-global FATES STUDY DATADEF INST runbatch PEAK PEAKMat PEAKFlds PARTidMat PARTidFlds PARTdataMat PARTdataFlds
+global FATES STUDY DATADEF INST runbatch PEAK PEAKMat PEAKFlds PARTidMat PARTidFlds PARTdataMat PARTdataFlds PARTmisseddataFlds
 
 
 runbatch=0; %default

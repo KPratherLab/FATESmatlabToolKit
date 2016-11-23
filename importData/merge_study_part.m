@@ -12,7 +12,7 @@ function merge_study_part(inst1_set,inst2_set)
 % added flexibilty if data structures don't match
 % Camille Sultana 2016
 %
-global FATES STUDY DATADEF  runbatch  STUDY1 STUDY2 STUDY3 PARTdataMat PARTdataFlds PARTidMat PARTidFlds PARTidMat2 INST INST1 INST2 PEAK1 PEAK2 PEAK PEAKFlds PARTidFlds2 num1 num2 PARTidMissed; 
+global FATES STUDY DATADEF  runbatch  STUDY1 STUDY2 STUDY3 PARTdataMat PARTdataFlds PARTidMat PARTidFlds PARTidMat2 INST INST1 INST2 PEAK1 PEAK2 PEAK PEAKFlds PARTidFlds2 num1 num2 PARTidMissed PARTmisseddataFlds; 
 
 %% check inputs
 if nargin > 2
@@ -123,7 +123,7 @@ STUDY=STUDY3;
 fprintf('INFO, merge study,saving study info to %s\n',STUDY.Name);
 
 save(STUDY.NameFull,'STUDY');
-save(STUDY.DataFile,'INST','PARTidMat','PARTdataMat','PARTidFlds','PARTdataFlds','PEAK','PEAKFlds','-v7.3');
+save(STUDY.DataFile,'INST','PARTidMat','PARTdataMat','PARTidFlds','PARTdataFlds','PEAK','PEAKFlds','PARTmisseddataFlds','-v7.3');
 
 clear global STUDY1 STUDY2 STUDY3 num1 num2
 %return

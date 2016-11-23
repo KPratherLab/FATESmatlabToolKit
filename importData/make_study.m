@@ -10,7 +10,7 @@ function make_study
 % PFR 2015-4-01  streamlined version of FATES, 
 % CMS 2016 more streamlined version fo FATES
 
-global STUDY procDATE INST runbatch nameSET namePKL nameSEM nameINST PARTdataFlds PEAK PEAKFlds PARTidMat PARTidFlds PARTdataMat partdataNAME missedFlds hitFlds missedNAME hitNAME partDataMISSED partDataHIT missedpartColumns hitpartColumns peakFldsNAME spectraNAME spectraColumns spectraFlds peakColumns
+global STUDY procDATE INST runbatch nameSET namePKL nameSEM nameINST PARTdataFlds PEAK PEAKFlds PARTidMat PARTidFlds PARTdataMat partdataNAME missedFlds hitFlds missedNAME hitNAME partDataMISSED partDataHIT missedpartColumns hitpartColumns peakFldsNAME spectraNAME spectraColumns spectraFlds peakColumns PARTmisseddataFlds
 
 %% input checks
 if (nargin>0)
@@ -116,7 +116,7 @@ for i = 1:length(nameSET)
 end
 
 %save files
-save(STUDY.DataFile,'INST','PARTidMat','PARTdataMat','PARTidFlds','PARTdataFlds','PEAK','PEAKFlds','-v7.3');
+save(STUDY.DataFile,'INST','PARTidMat','PARTdataMat','PARTidFlds','PARTdataFlds','PEAK','PEAKFlds','PARTmisseddataFlds','-v7.3');
 save(STUDY.NameFull,'STUDY');
 clearvars -global runbatch nameSET namePKL nameSEM nameINST procDATE partdataNAME missedFlds hitFlds missedNAME hitNAME partDataMISSED partDataHIT missedpartColumns hitpartColumns numFldsPARTid numFldsPARTdata3 numFldsPEAKFlds peakColumns spectraColumns spectraFlds
 return
