@@ -5,7 +5,7 @@ function studyFields
 %to what fields can be altered/removed and what must remain for fates to
 %continue functioning.
 
-global PEAKFlds PARTidFlds PARTdataFlds PEAK STUDY INST partdataNAME numFldsPARTid numFldsPARTdata peakFldsNAME numFldsPEAKFlds PARTmisseddataFlds
+global PEAKFlds PARTidFlds PARTdataFlds PEAK STUDY INST partdataNAME numFldsPARTid numFldsPARTdata peakFldsNAME numFldsPEAKFlds PARTmisseddataFlds DATADEF
 
 %set up INST flds
 % NOTES ON FLEXIBILITY
@@ -46,6 +46,7 @@ instDESC(1:end) = {'inst parameters identifier'; 'instrument code'; 'instrument 
 %be relatively straightforward.  You would only consider doing this if you only had single
 %polarity data. You may rename/change/add/delete all other
 %PEAKFlds flds at your discretion.  
+%ATOFMS setup
 PEAKFlds.INSTID = 1; %DO NOT DELETE %instrument identifier
 PEAKFlds.PARTID = 2; %DO NOT DELETE %particle identifier
 PEAKFlds.SPECID = 3; %probably DO NOT DELETE %spectrum (polarity) identifier: 1 is pos, 0 is neg
@@ -55,19 +56,30 @@ PEAKFlds.AREA = 6; %area of peak
 PEAKFlds.HEIGHT = 7; %peak height
 PEAKFlds.BLOWSCALE = 8; %true if peak blows scale
 PEAKFlds.RELAREA = 9; %peak area relative to total area of spectrum
-numFldsPEAKFlds = length(fieldnames(PEAKFlds)); %DON'T DELETE
-STUDY.NumPkCols= numFldsPEAKFlds;
+
+% PEAKFlds for ALABAMA, uncomment section for alabama data
+% PEAKFlds.INSTID = 1; %DO NOT DELETE %instrument identifier
+% PEAKFlds.PARTID = 2; %DO NOT DELETE %particle identifier
+% PEAKFlds.SPECID = 3; %probably DO NOT DELETE %spectrum (polarity) identifier: 1 is pos, 0 is neg
+% PEAKFlds.MZ = 4;  %DO NOT DELETE %mz of peak
+% PEAKFlds.AREA = 5; %area of peak
 
 %set up variables to save data definitions file
+numFldsPEAKFlds = length(fieldnames(PEAKFlds)); %DON'T DELETE
+STUDY.NumPkCols= numFldsPEAKFlds; %DON'T DELETE
 peakFldsNAME = fieldnames(PEAKFlds);
 peakFTABLE = cell(length(peakFldsNAME),1);
 peakFTABLE(1:end) = {'PEAKFlds'};
 peakFDESC = cell(length(peakFldsNAME),1);
+
 %the peakFDESC variable has to be manually altered if you change the fields
 %this variable is just a reference for future users so if you don't change
 %it, the study will still load properly but the record of what each field
 %is in DATADEF will not be accureate
+%peak description cell array for current peak flds
 peakFDESC(1:end) = {'inst parameters identifier'; 'particle identifier'; 'spectrum (polarity) identifier'; 'peak identifier'; 'mz of peak'; 'area of peak'; 'peak height'; 'true if peak blows scale'; 'peak area relative to total area of spectrum'};
+%peak description cell array for ALABAMA peak flds
+% peakFDESC(1:end) = {'inst parameters identifier'; 'particle identifier'; 'spectrum (polarity) identifier'; 'mz of peak'; 'area of peak'};
 
 %set up PEAK
 % NOTES ON FLEXIBILITY
@@ -117,7 +129,6 @@ partidDESC = cell(length(partidNAME),1);
 %it, the study will still load properly but the record of what each field
 %is in DATADEF will not be accureate
 partidDESC(1:end) = {'inst parameters identifier'; 'particle identifier'; 'time of paritcle detection'};
-
 numFldsPARTid = length(partidNAME); %DON'T DELETE
 
 %set up partData fields
@@ -133,7 +144,8 @@ numFldsPARTid = length(partidNAME); %DON'T DELETE
 % plan on changing any of this.  
 
 % Data type 1:data read in directly from the
-% particle file (.sem or .set).  Currently this only consists of Velocity and LaserPower.
+% particle file (.sem or .set).  Currently this only consists of Velocity and LaserPower for ATOFMS data.
+% For ALABAMA data only use velocity and comment out laserpower
 % All PARTdataFlds.DataType1 flds you may 
 % rename/change/add/delete at your discretion
 PARTdataFlds.VELOCITY = 1; %velocity of particle 
@@ -153,13 +165,15 @@ PARTdataFlds.LASERPOWER = 2; %laser power of ldi
 %will be stored in the PART tables held in memory by MATLAB, significantly 
 %increasing memory demands.  In addition there will not be a marker for 
 %hit and missed particles.  So it is not advised to remove the HIT field.
+% NOTE ALABAMA DATA doesn't us any of these. Comment out these fields.
 PARTdataFlds.DA = 3; %vacuum aerodynamic diameter, calculated using provided calibration function and parameters and particle velocity
 PARTdataFlds.HIT = 4; %suggest do not remove, >0 if hit. 0= not hit, if .pol file exists 1 = both pos and neg spectra generated, 2 = pos spectra only, 3 = neg spectra only. If no pol file 1 = any spectra generated ('hit particle')
 PARTdataFlds.RING = 5; %>0 if ring detected in spectra. This is read in from .pol file if it exists.
 PARTdataFlds.POSIT = 6; %position of particle in folder, taken from number of particles in .set and .sem files
-PARTmisseddataFlds = PARTdataFlds;
 
 %set up variables to save data definitions file
+PARTmisseddataFlds = PARTdataFlds; %assuming same particle data for missed and hit particles. Otherwise would have to set 
+% up a PARTmisseddataFLds from scratch as with PARTdataFlds
 partdataNAME = fieldnames(PARTdataFlds); %DON'T DELETE
 numFldsPARTdata = length(partdataNAME); %DON'T DELETE
 partdataTABLE = cell(length(partdataNAME),1);
@@ -171,7 +185,8 @@ partdataDESC = cell(length(partdataNAME),1);
 %this variable is just a reference for future users so if you don't change
 %it, the study will still load properly but the record of what each field
 %is in DATADEF will not be accureate
-allDESC = {'velocity of particle'; 'laser power of ldi';'%vacuum aerodynamic diameter';'>0 if hit'; '>0 if ring detected in spectra';'%position of particle in folder'};
+% partdataDESC(1:end) = {'velocity of particle'; 'laser power of ldi';'%vacuum aerodynamic diameter';'>0 if hit'; '>0 if ring detected in spectra';'%position of particle in folder'};
+partdataDESC(1:end) = {'velocity of particle'};
 %  'PMTA Height'; 'PMTA Area'; 'PMTB HEIGHT'; 'PMTB Area'
 
 %create datadef variable to hold study definitions for future reference
@@ -191,7 +206,7 @@ DATADEF.desc = 3;
 [DATADEF((length(partidNAME)+1):(length(partidNAME)+length(peakFldsNAME))).name] = peakFldsNAME{:};
 [DATADEF((length(partidNAME)+length(peakFldsNAME)+1):(length(partidNAME)+length(peakFldsNAME)+length(peakNAME))).name] = peakNAME{:};
 [DATADEF((length(partidNAME)+length(peakFldsNAME)+length(peakNAME)+1):(length(partdataNAME)+length(partidNAME)+length(peakFldsNAME)+length(peakNAME))).name] = partdataNAME{:};
-[DATADEF((length(partdataNAME)+length(partidNAME)+length(peakFldsNAME)+length(peakNAME)+1):(length(partdataNAME)+length(partidNAME)+length(peakFldsNAME)+length(instFldsNAME)+length(peakNAME))).table] = instFldsNAME{:};
+[DATADEF((length(partdataNAME)+length(partidNAME)+length(peakFldsNAME)+length(peakNAME)+1):(length(partdataNAME)+length(partidNAME)+length(peakFldsNAME)+length(instFldsNAME)+length(peakNAME))).name] = instFldsNAME{:};
 
 
 %fill in description

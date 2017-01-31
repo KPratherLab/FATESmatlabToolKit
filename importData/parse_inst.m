@@ -25,7 +25,7 @@ InstID = STUDY.LastInstID + 1;
 INST(RowIdx).InstID=InstID;
 
 %read in inst file
-instText = read_inst(InstFile);
+instText = read_inst(InstFile{1});
 
 %check INST files for field names to be read in and add data to INST structure
 fldname_set=fieldnames(INST); %get field names

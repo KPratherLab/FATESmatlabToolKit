@@ -17,7 +17,10 @@ global missedFlds hitFlds spectraFlds missedNAME hitNAME spectraNAME
 
 %set up missed data fields (sem data format) (currently .sem and .set files have
 %identical organization so missedFlds == hitFlds
-%
+%Alabama detectedparticles.txt format
+% missedFlds.TIME = 1; %TIME ALWAYS NEEDS TO BE THE FIRST FIELD DEFINED DO NOT CHANGE 
+% missedFlds.VELOCITY = 2; 
+% Current ATOFMS .sem format
 missedFlds.TIME = 3; %TIME ALWAYS NEEDS TO BE THE FIRST FIELD DEFINED DO NOT CHANGE 
 missedFlds.VELOCITY = 1; 
 missedFlds.LASERPOWER = 2;
@@ -28,8 +31,13 @@ missedFlds.SAAREA = 7;
 missedNAME = fieldnames(missedFlds);
 missedNAME = missedNAME(2:end);
 
+
 %set up hit data fields (set data format) (currently .sem and .set files have
 %identical organization so missedFlds == hitFlds
+%Alabama hitparticles.txt format
+% hitFlds.TIME = 1; %TIME ALWAYS NEEDS TO BE THE FIRST FIELD DEFINED DO NOT CHANGE
+% hitFlds.VELOCITY = 2;
+% Current ATOFMS .set format
 hitFlds.TIME = 3; %TIME ALWAYS NEEDS TO BE THE FIRST FIELD DEFINED DO NOT CHANGE
 hitFlds.VELOCITY = 1;
 hitFlds.LASERPOWER = 2;
@@ -41,6 +49,7 @@ hitNAME = fieldnames(hitFlds);
 hitNAME = hitNAME(2:end);
 
 %set up spectra data fields (pkl file format)
+%comment this out if using alabama file format
 spectraFlds.PARTID = 1; %PARTID ALWAYS NEEDS TO BE THE FIRST FIELD DEFINED DO NOT CHANGE %particle identifier %the particle identifiers in the pkl file are overwritten by particle identifiers that will be unique to the study. 
 spectraFlds.SPECID = 2; %spectrum (polarity) identifier: 1 is pos, 0 is neg
 spectraFlds.PEAKID = 3; 

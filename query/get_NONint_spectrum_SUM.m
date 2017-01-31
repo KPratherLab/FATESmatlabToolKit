@@ -5,7 +5,7 @@ function [NegResponse,PosResponse] = get_NONint_spectrum_SUM(PID,MZbins,Response
 %   PID(:,1) = InstID
 %   PID(:,2) = PartID
 % MZbins are the bin EDGES to be used in histcounts (not center of bin).  The default MZbins is
-% 0.25:0.5:300.5.  This gives gives half integer bins centered over 0.5 and 1 
+%  .  This gives gives half integer bins centered over 0.5 and 1 
 % values ie 0.5 (0.25-0.75), 1 (0.75-1.25), 1.5 (1.25-1.75)
 % The ResponseType can be any column in PEAK. 'Area' is the default ResponseType.
 % Polarity specifies the spectrum polarity as

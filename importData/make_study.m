@@ -3,14 +3,18 @@ function make_study
 % A study must already have been initialized by init_study and loaded
 % into STUDY.  Make_ydb will use raw data files as specified in STUDY.RawDir
 % and populate the fates datafiles, matrices, and structures. 
-% Make_study utilizes .set (hit particle), .sem (missed particle), .pkl (spectra)
+% If using (1) ATOFMS data/file format described in the manual
+% make_study utilizes .set (hit particle), .sem (missed particle), .pkl (spectra)
 % .pol (polarity), and .inst (instrument) data files.  .pol files are
 % optional
-%
+% If using (2) ALABAMA data/file format make_study utilizes HitParticles.txt
+% and DetectedParticles.txt.  
+% If using a (3) file format not described will have to add a new loadDATA_xxx
+% script.
 % PFR 2015-4-01  streamlined version of FATES, 
 % CMS 2016 more streamlined version fo FATES
 
-global STUDY procDATE INST runbatch nameSET namePKL nameSEM nameINST PARTdataFlds PEAK PEAKFlds PARTidMat PARTidFlds PARTdataMat partdataNAME missedFlds hitFlds missedNAME hitNAME partDataMISSED partDataHIT missedpartColumns hitpartColumns peakFldsNAME spectraNAME spectraColumns spectraFlds peakColumns PARTmisseddataFlds
+global STUDY procDATE INST runbatch DATADEF nameSET namePKL nameSEM nameINST PARTdataFlds PEAK PEAKFlds PARTidMat PARTidFlds PARTdataMat partdataNAME missedFlds hitFlds missedNAME hitNAME partDataMISSED partDataHIT missedpartColumns hitpartColumns peakFldsNAME spectraNAME spectraColumns spectraFlds peakColumns PARTmisseddataFlds
 
 %% input checks
 if (nargin>0)
@@ -102,21 +106,21 @@ end
 
 
 %% 
-%find all files where data is (looking for .sem, .set, .pkl, .inst, .pol files)
 fprintf('INFO, make study about to find all data files\n')
-findData(STUDY.RawDir);
-save(STUDY.DataList,'nameSEM','nameSET','namePKL','nameINST','procDATE');
 
-%get particle and inst and peak data
-single(PARTdataMat);
-for i = 1:length(nameSET)
-    [InstID,NewInst] = parse_inst(nameINST{i});
-    disp(nameSET{i})
-    parse_part(nameSET{i},nameSEM{i},namePKL{i},InstID);
+%find all files and write data to study
+if STUDY.SPMSData == 1
+    loadDATA_atofms
+elseif STUDY.SPMSData == 2
+    loadDATA_alabama
+elseif STUDY.SPMSData == 3
+    %create a script to load in data here if easier than altering
+    %loadDATA_atofms or loadDATA_alabama scripts. Use the existing scripts as a
+    %model
 end
 
 %save files
-save(STUDY.DataFile,'INST','PARTidMat','PARTdataMat','PARTidFlds','PARTdataFlds','PEAK','PEAKFlds','PARTmisseddataFlds','-v7.3');
+save(STUDY.DataFile,'INST','PARTidMat','PARTdataMat','PARTidFlds','PARTdataFlds','PEAK','PEAKFlds','DATADEF','PARTmisseddataFlds','-v7.3');
 save(STUDY.NameFull,'STUDY');
 clearvars -global runbatch nameSET namePKL nameSEM nameINST procDATE partdataNAME missedFlds hitFlds missedNAME hitNAME partDataMISSED partDataHIT missedpartColumns hitpartColumns numFldsPARTid numFldsPARTdata3 numFldsPEAKFlds peakColumns spectraColumns spectraFlds
 return

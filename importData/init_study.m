@@ -128,7 +128,12 @@ if (runbatch==0)  %PFR, 0 means get info from user
         end
     end
     
+    t = input('What data type is in the raw directory? \n1:ATOFMS, 2:ALABAMA 3:OTHER    ');
+    STUDY.SPMSData = t;
+    
     % get file extensions for data files
+    if STUDY.SPMSData == 1
+        %get file extensions for atofms data
     STUDY.missedEXT = input('What is the file extension for the files containing missed particle data? (txt, sem, ...)  ','s');
     STUDY.hitEXT = input('What is the file extension for the files containing particle data? (txt, set, ...)  ','s');
     STUDY.spectraEXT = input('What is the file extension for the files containing spectra data? (txt, pkl, ...)  ','s');
@@ -137,6 +142,26 @@ if (runbatch==0)  %PFR, 0 means get info from user
     STUDY.hitEXT = sprintf('%s%s','.',STUDY.hitEXT);
     STUDY.spectraEXT = sprintf('%s%s','.',STUDY.spectraEXT);
     STUDY.instEXT = sprintf('%s%s','.',STUDY.instEXT);
+    elseif STUDY.SPMSData == 2
+        %get file names for alabama data
+        STUDY.hitName = input('What is the file name for the files contaning hit particle and spectral data? (HitParticles.txt, ...)   ','s');
+        STUDY.detName = input('What is the file name for the files contaning all detected particle data? (DetectedParticles.txt, ...)   ','s');  
+        STUDY.instEXT = input('What is the file extension for the files containing instrument/experiment data? (txt, inst, ...)  ','s');
+        STUDY.instEXT = sprintf('%s%s','.',STUDY.instEXT);
+    elseif STUDY.SPMSData == 3
+        %get file extensions for SPMS data, using same prompts as atofms
+        %data, can alter if data structure is very different (see alabama
+        %examples)
+        STUDY.missedEXT = input('What is the file extension for the files containing missed particle data? (txt, sem, ...)  ','s');
+        STUDY.hitEXT = input('What is the file extension for the files containing particle data? (txt, set, ...)  ','s');
+        STUDY.spectraEXT = input('What is the file extension for the files containing spectra data? (txt, pkl, ...)  ','s');
+        STUDY.instEXT = input('What is the file extension for the files containing instrument/experiment data? (txt, inst, ...)  ','s');
+        STUDY.missedEXT = sprintf('%s%s','.',STUDY.missedEXT);
+        STUDY.hitEXT = sprintf('%s%s','.',STUDY.hitEXT);
+        STUDY.spectraEXT = sprintf('%s%s','.',STUDY.spectraEXT);
+        STUDY.instEXT = sprintf('%s%s','.',STUDY.instEXT);
+    end
+        
     
 end; %if runbatch=1
 % ---------------------

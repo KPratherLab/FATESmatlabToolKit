@@ -88,8 +88,8 @@ elseif ~isempty(findINST) %create list of data files in folder if inst file foun
         ProcDatetmp2(1:end,1) = ProcDATEtmp;
         procDATE = [procDATE; ProcDatetmp2];
     else
-        nameINST = [nameINST; nameINSTtmp];
-        procDATE = [procDATE; ProcDatetmp];
+        nameINST = [nameINST; {nameINSTtmp}];
+        procDATE = [procDATE; ProcDATEtmp];
     end
 end
 
