@@ -14,7 +14,7 @@ function make_study
 % PFR 2015-4-01  streamlined version of FATES, 
 % CMS 2016 more streamlined version fo FATES
 
-global STUDY procDATE INST runbatch DATADEF nameSET namePKL nameSEM nameINST PARTdataFlds PEAK PEAKFlds PARTidMat PARTidFlds PARTdataMat partdataNAME missedFlds hitFlds missedNAME hitNAME partDataMISSED partDataHIT missedpartColumns hitpartColumns peakFldsNAME spectraNAME spectraColumns spectraFlds peakColumns PARTmisseddataFlds
+global STUDY procDATE INST runbatch DATADEF nameSET namePKL nameSEM nameINST PARTdataFlds PEAK PEAKFlds PARTidMat PARTidFlds PARTdataMat partdataNAME missedFlds hitFlds missedNAME hitNAME partDataMISSED partDataHIT missedpartColumns hitpartColumns peakFldsNAME spectraNAME spectraColumns spectraFlds peakColumns PARTmisseddataFlds partmisseddataNAME
 
 %% input checks
 if (nargin>0)
@@ -87,12 +87,16 @@ for i = 1:length(partdataNAME)
         partDataHIT = [partDataHIT PARTdataFlds.(partdataNAME{i})];
         hitpartColumns = [hitpartColumns hitFlds.(hitNAME{hitTMP})];
     end
-    missedTMP = strcmpi(partdataNAME{i}, hitNAME);
+end
+
+for i = 1:length(partmisseddataNAME)
+    missedTMP = strcmpi(partmisseddataNAME{i}, missedNAME);
     if any(missedTMP)
-        partDataMISSED = [partDataMISSED PARTdataFlds.(partdataNAME{i})];
+        partDataMISSED = [partDataMISSED PARTmisseddataFlds.(partmisseddataNAME{i})];
         missedpartColumns = [missedpartColumns missedFlds.(missedNAME{missedTMP})];
     end    
 end
+
 %match PEAKFlds to columns from spectra files
 spectraColumns = [];
 peakColumns = [];
@@ -109,20 +113,21 @@ end
 fprintf('INFO, make study about to find all data files\n')
 
 %find all files and write data to study
-if STUDY.SPMSData == 1
-    loadDATA_atofms
-elseif STUDY.SPMSData == 2
-    loadDATA_alabama
-elseif STUDY.SPMSData == 3
-    %create a script to load in data here if easier than altering
-    %loadDATA_atofms or loadDATA_alabama scripts. Use the existing scripts as a
-    %model
+findData(STUDY.RawDir);
+save(STUDY.DataList,'nameSEM','nameSET','namePKL','nameINST','procDATE');
+
+%parse and write particle and inst and peak data
+single(PARTdataMat);
+for i = 1:length(nameSET)
+    [InstID,NewInst] = parse_inst(nameINST{i});
+    disp(nameSET{i})
+    parse_part(nameSET{i},nameSEM{i},namePKL{i},InstID);
 end
 
 %save files
 save(STUDY.DataFile,'INST','PARTidMat','PARTdataMat','PARTidFlds','PARTdataFlds','PEAK','PEAKFlds','DATADEF','PARTmisseddataFlds','-v7.3');
 save(STUDY.NameFull,'STUDY');
-clearvars -global runbatch nameSET namePKL nameSEM nameINST procDATE partdataNAME missedFlds hitFlds missedNAME hitNAME partDataMISSED partDataHIT missedpartColumns hitpartColumns numFldsPARTid numFldsPARTdata3 numFldsPEAKFlds peakColumns spectraColumns spectraFlds
+clearvars -global runbatch nameSET namePKL nameSEM nameINST procDATE partdataNAME missedFlds hitFlds missedNAME hitNAME partDataMISSED partDataHIT missedpartColumns hitpartColumns numFldsPARTid numFldsPARTdata3 numFldsPEAKFlds peakColumns spectraColumns spectraFlds numFldsPARTdata peakFldsNAME spectraNAME numFldsmissedPARTdata partmisseddataNAME
 return
 
 

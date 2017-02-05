@@ -154,6 +154,8 @@ else
     end; %end while
     
     %messages after running
+    fclose(fid);
+    
     fprintf('INFO, pkcomm helper, Summary: loaded PEAKMat in %i chunks, with  %i total file rows \n',...
         pkloadcnt,numpkrows);
     if (exist('clearlastchunk_PEAKMat') && clearlastchunk_PEAKMat==true) %clear PEAKMat if specified

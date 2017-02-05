@@ -33,12 +33,21 @@ end
 
 %open up PdataMissedFile
 tmp = fopen(PdataMissedFile);
+
+%get fieldnames
+fnames = fieldnames(PARTmisseddataFlds);
+values = zeros(1,length(fnames));
+for i = 1:length(fnames)
+    values(i) = PARTmisseddataFlds.(fnames{i});
+end
+numCols = max(values);
+
 if tmp ~= -1
     PARTdataMissed = fread(tmp,'single');
     fclose(tmp);
     
     %shape matrix
-    numCols = length(fieldnames(PARTmisseddataFlds));
+%     numCols = length(fieldnames(PARTmisseddataFlds));
     numRows = length(PARTdataMissed)/numCols;
     PARTdataMissed = reshape(PARTdataMissed, [numCols numRows]);
     PARTdataMissed = PARTdataMissed';
